@@ -11,7 +11,8 @@ namespace AccountingEngineAdmin.Pages.SourceRules;
 
 /// <summary>
 /// Lists all source rules with their rule lines, account names and active state.
-/// Provides create and toggle-active actions wired to the Accounting Engine API.
+/// Provides create, edit, toggle-active and delete actions wired to the
+/// Accounting Engine API (mirrors the Accounts page behavior).
 /// </summary>
 public partial class SourceRules : ComponentBase
 {
@@ -68,12 +69,49 @@ public partial class SourceRules : ComponentBase
         var model = new SourceRuleFormModel();
         var result = await DialogService.OpenAsync<SourceRuleDialog>(
             "New Source Rule",
-            new Dictionary<string, object?> { ["Model"] = model },
+            new Dictionary<string, object?> { ["Model"] = model, ["IsCreate"] = true },
             new DialogOptions { Width = "820px", Draggable = true, CloseDialogOnEsc = true });
 
         if (result is SourceRuleResponse created)
         {
             Notify(NotificationSeverity.Success, "Source rule created", created.SourceType);
+            await LoadAsync();
+        }
+    }
+
+    private async Task OpenEditAsync(SourceRuleResponse rule)
+    {
+        var model = new SourceRuleFormModel
+        {
+            SourceType = rule.SourceType,
+            Description = rule.Description,
+            IsManualEntryAllowed = rule.IsManualEntryAllowed
+        };
+
+        foreach (var line in rule.RuleLines.OrderBy(l => l.Sequence))
+        {
+            model.RuleLines.Add(new SourceRuleLineFormModel
+            {
+                AccountCode = line.AccountCode,
+                EntryType = line.EntryType,
+                AmountType = line.AmountType,
+                Sequence = line.Sequence
+            });
+        }
+
+        var result = await DialogService.OpenAsync<SourceRuleDialog>(
+            $"Edit {rule.SourceType}",
+            new Dictionary<string, object?>
+            {
+                ["Model"] = model,
+                ["IsCreate"] = false,
+                ["OriginalSourceType"] = rule.SourceType
+            },
+            new DialogOptions { Width = "820px", Draggable = true, CloseDialogOnEsc = true });
+
+        if (result is SourceRuleResponse updated)
+        {
+            Notify(NotificationSeverity.Success, "Source rule updated", updated.SourceType);
             await LoadAsync();
         }
     }
@@ -91,6 +129,35 @@ public partial class SourceRules : ComponentBase
         catch (ApiException ex)
         {
             Notify(NotificationSeverity.Error, "Update failed", ex.Message);
+        }
+        catch (HttpRequestException)
+        {
+            Notify(NotificationSeverity.Error, "API unreachable",
+                "Could not reach the Accounting Engine API.");
+        }
+    }
+
+    private async Task DeleteAsync(SourceRuleResponse rule)
+    {
+        var confirmed = await DialogService.Confirm(
+            $"Delete source rule {rule.SourceType} - {rule.Description}? This cannot be undone.",
+            "Confirm delete",
+            new ConfirmOptions { OkButtonText = "Delete", CancelButtonText = "Cancel" });
+
+        if (confirmed != true)
+        {
+            return;
+        }
+
+        try
+        {
+            await SourceRulesApi.DeleteAsync(rule.SourceType);
+            Notify(NotificationSeverity.Success, "Source rule deleted", rule.SourceType);
+            await LoadAsync();
+        }
+        catch (ApiException ex)
+        {
+            Notify(NotificationSeverity.Error, "Delete failed", ex.Message);
         }
         catch (HttpRequestException)
         {

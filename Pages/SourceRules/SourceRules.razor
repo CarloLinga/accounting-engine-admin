@@ -74,9 +74,11 @@
                             <span class="account-status @(rule.IsActive ? "is-active" : "is-inactive")">@(rule.IsActive ? "Active" : "Inactive")</span>
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="SourceRuleResponse" Title="Actions" Width="90px" Sortable="false" Filterable="false">
+                    <RadzenDataGridColumn TItem="SourceRuleResponse" Title="Actions" Width="150px" Sortable="false" Filterable="false">
                         <Template Context="rule">
+                            <RadzenButton Icon="edit" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Light" Click="@(() => OpenEditAsync(rule))" />
                             <RadzenButton Icon="@(rule.IsActive ? "toggle_on" : "toggle_off")" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Info" Click="@(() => ToggleActiveAsync(rule))" />
+                            <RadzenButton Icon="delete" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Danger" Click="@(() => DeleteAsync(rule))" />
                         </Template>
                     </RadzenDataGridColumn>
                 </Columns>

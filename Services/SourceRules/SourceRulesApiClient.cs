@@ -22,15 +22,18 @@ public sealed class SourceRulesApiClient : ApiClientBase, ISourceRulesApiClient
         return rules ?? [];
     }
 
-    public async Task<SourceRuleResponse?> CreateAsync(
+    public async Task<SourceRuleResponse> CreateAsync(
         CreateSourceRuleRequest request, CancellationToken cancellationToken = default)
     {
         using var response = await Http.PostAsJsonAsync("api/SourceRules", request, ApiJson.Options, cancellationToken);
-        await EnsureSuccessAsync(response, cancellationToken);
+        return await SendForValueAsync<SourceRuleResponse>(response, cancellationToken);
+    }
 
-        // The API answers 200 with the created rule; the payload is parsed
-        // tolerantly so an unexpected (or empty) body still counts as success.
-        return await TryReadAsync<SourceRuleResponse>(response, cancellationToken);
+    public async Task<SourceRuleResponse> UpdateAsync(
+        string sourceType, UpdateSourceRuleRequest request, CancellationToken cancellationToken = default)
+    {
+        using var response = await Http.PutAsJsonAsync($"api/SourceRules/{Escape(sourceType)}", request, ApiJson.Options, cancellationToken);
+        return await SendForValueAsync<SourceRuleResponse>(response, cancellationToken);
     }
 
     public async Task SetActiveAsync(string sourceType, bool isActive, CancellationToken cancellationToken = default)
@@ -40,6 +43,12 @@ public sealed class SourceRulesApiClient : ApiClientBase, ISourceRulesApiClient
             $"api/SourceRules/{Escape(sourceType)}/status?isActive={(isActive ? "true" : "false")}");
 
         using var response = await Http.SendAsync(request, cancellationToken);
+        await EnsureSuccessAsync(response, cancellationToken);
+    }
+
+    public async Task DeleteAsync(string sourceType, CancellationToken cancellationToken = default)
+    {
+        using var response = await Http.DeleteAsync($"api/SourceRules/{Escape(sourceType)}", cancellationToken);
         await EnsureSuccessAsync(response, cancellationToken);
     }
 }

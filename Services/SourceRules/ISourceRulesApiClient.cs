@@ -13,8 +13,14 @@ public interface ISourceRulesApiClient
     Task<IReadOnlyList<SourceRuleResponse>> GetAllAsync(CancellationToken cancellationToken = default);
 
     /// <summary>POST /api/SourceRules</summary>
-    Task<SourceRuleResponse?> CreateAsync(CreateSourceRuleRequest request, CancellationToken cancellationToken = default);
+    Task<SourceRuleResponse> CreateAsync(CreateSourceRuleRequest request, CancellationToken cancellationToken = default);
+
+    /// <summary>PUT /api/SourceRules/{sourceType}</summary>
+    Task<SourceRuleResponse> UpdateAsync(string sourceType, UpdateSourceRuleRequest request, CancellationToken cancellationToken = default);
 
     /// <summary>PATCH /api/SourceRules/{sourceType}/status?isActive=</summary>
     Task SetActiveAsync(string sourceType, bool isActive, CancellationToken cancellationToken = default);
+
+    /// <summary>DELETE /api/SourceRules/{sourceType} (400 when the rule is used by journal entries).</summary>
+    Task DeleteAsync(string sourceType, CancellationToken cancellationToken = default);
 }

@@ -17,6 +17,15 @@ public partial class SourceRuleDialog : ComponentBase
 
     [Parameter] public SourceRuleFormModel Model { get; set; } = new();
 
+    [Parameter] public bool IsCreate { get; set; } = true;
+
+    /// <summary>
+    /// Route key for PUT /api/SourceRules/{sourceType}. The backend allows
+    /// renaming, so this preserves the original value while Model.SourceType
+    /// carries the (possibly edited) new value.
+    /// </summary>
+    [Parameter] public string? OriginalSourceType { get; set; }
+
     private List<AccountResponse> accounts = [];
     private bool saving;
     private string? error;
@@ -37,7 +46,7 @@ public partial class SourceRuleDialog : ComponentBase
             // Same as above - keep the dialog usable offline.
         }
 
-        if (Model.RuleLines.Count == 0)
+        if (IsCreate && !Model.IsManualEntryAllowed && Model.RuleLines.Count == 0)
         {
             AddLine();
             AddLine();
@@ -50,7 +59,9 @@ public partial class SourceRuleDialog : ComponentBase
     private void AddLine() =>
         Model.RuleLines.Add(new SourceRuleLineFormModel
         {
-            DebitPercentage = 100,
+            EntryType = Model.RuleLines.Any(l => l.EntryType == RuleEntryType.Debit)
+                ? RuleEntryType.Credit
+                : RuleEntryType.Debit,
             AmountType = RuleAmountType.TOTAL_AMOUNT
         });
 
@@ -63,7 +74,26 @@ public partial class SourceRuleDialog : ComponentBase
 
         try
         {
-            var result = await Api.CreateAsync(Model.ToRequest());
+            if (!Model.IsManualEntryAllowed)
+            {
+                var filled = Model.RuleLines.Where(l => l.IsFilled).ToList();
+                if (filled.Count < 2)
+                {
+                    error = "Automated source rules must define at least two template lines.";
+                    return;
+                }
+
+                if (!filled.Any(l => l.EntryType == RuleEntryType.Debit) ||
+                    !filled.Any(l => l.EntryType == RuleEntryType.Credit))
+                {
+                    error = "Automated source rules must contain at least one Debit line and one Credit line.";
+                    return;
+                }
+            }
+
+            SourceRuleResponse result = IsCreate
+                ? await Api.CreateAsync(Model.ToRequest())
+                : await Api.UpdateAsync(OriginalSourceType ?? Model.SourceType, Model.ToUpdateRequest());
             DialogService.Close(result);
         }
         catch (ApiException ex)
