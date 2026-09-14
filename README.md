@@ -1,54 +1,129 @@
 # Accounting Engine Admin
 
-Blazor WebAssembly admin front-end for the [Accounting Engine API](https://github.com/) (headless REST API hosted on Render).
+Blazor WebAssembly administration front end for the Accounting Engine REST API. The application provides a browser-based workspace for maintaining accounts, configuring source rules, entering and reviewing journals, and viewing accounting reports.
 
-## Stack
+The app is a standalone client-side WebAssembly application. The API is deployed separately, so the published `wwwroot` folder can be hosted by a static site provider such as Cloudflare Pages.
 
-- **.NET 9 / Blazor WebAssembly** (standalone, no hosted server needed in production)
-- **Radzen.Blazor 11.x** (MIT) — grid, dialogs, notifications, forms, charts
-- Typed `HttpClient` clients via `Microsoft.Extensions.Http` (`IHttpClientFactory`)
+## Features
 
-## Structure
+- Dashboard with API status and accounting summary information
+- Chart of Accounts management, including search, filtering, create/edit, activation, and deletion
+- Source rule management
+- Journal entry list and general journal workflows
+- Trial balance reporting
+- General ledger reporting by account
+- Income statement, balance sheet, and cash flow views
+- Radzen dialogs, grids, forms, notifications, and charts
 
-```
+## Routes
+
+| Area | Route |
+| --- | --- |
+| Dashboard | `/` |
+| Accounts | `/accounts` |
+| Source rules | `/source-rules` |
+| Journal entries | `/journals` |
+| Trial balance | `/trial-balance` |
+| General ledger | `/ledger` |
+| Financial statements | `/financial-statements` |
+
+## Technology
+
+- **.NET 9 / Blazor WebAssembly**
+- **Radzen.Blazor 11.3.2** for the UI components
+- Typed `HttpClient` services through `Microsoft.Extensions.Http`
+- Nullable reference types and implicit usings enabled
+
+## Project structure
+
+```text
 AccountingEngineAdmin/
-├── Layout/                  # MainLayout, NavMenu (+ Radzen service hosts)
+├── Layout/                         # Application shell and navigation
 ├── Models/
-│   └── Accounts/            # DTOs, enums, form models, display helpers
+│   ├── Accounts/                   # Account DTOs, enums, and form models
+│   ├── JournalEntries/             # Journal entry models
+│   ├── Reports/                    # Trial balance and statement models
+│   └── SourceRules/                # Source rule models
 ├── Pages/
-│   ├── Home.razor(.cs/.css) # Dashboard: stats, donut chart, API status
-│   └── Accounts/            # Chart of Accounts CRUD
-│       ├── Accounts.razor(.cs/.css)   # list/search/filter/activate/delete
-│       ├── AccountDialog.razor(.cs)   # create/edit dialog
-│       ├── AccountDialogBase.cs
-│       └── AccountOptions.cs
-├── Properties/launchSettings.json     # dev server profile (http://localhost:5001)
+│   ├── Accounts/                   # Chart of Accounts and account dialog
+│   ├── FinancialStatements/        # Income statement, balance sheet, cash flow
+│   ├── GeneralLedger/              # General ledger report
+│   ├── JournalEntries/             # Journal list and journal dialogs
+│   ├── SourceRules/                # Source rule list and dialog
+│   └── TrialBalance/               # Trial balance report
 ├── Services/
-│   ├── Accounts/            # IAccountsApiClient + REST implementation
-│   ├── ApiJson.cs           # JSON options (camelCase, enums-as-strings)
-│   └── ApiException.cs      # ProblemDetails-aware API errors
+│   ├── Accounts/                   # Accounts API client
+│   ├── JournalEntries/             # Journals API client
+│   ├── Reports/                    # Reporting API client
+│   ├── SourceRules/                # Source rules API client
+│   ├── ApiClientBase.cs            # Shared HTTP client behavior
+│   ├── ApiException.cs             # API and ProblemDetails errors
+│   └── ApiJson.cs                  # Shared JSON serialization options
+├── Properties/launchSettings.json  # Local development profile
 └── wwwroot/
-    ├── appsettings.json               # dev config (Api:BaseUrl = localhost:5000)
-    ├── appsettings.Production.json    # deploy config — SET THE RENDER URL HERE
-    └── _redirects                     # Cloudflare Pages SPA fallback
+    ├── appsettings.json            # Development API configuration
+    ├── appsettings.Production.json # Production API configuration
+    └── _redirects                  # SPA fallback for Cloudflare Pages
 ```
+
+## Prerequisites
+
+- .NET 9 SDK
+- A running Accounting Engine API, unless you only need to build or preview the static shell
+
+The client expects the API to be reachable from the browser and to allow the deployed client origin through CORS.
+
+## Configuration
+
+The API URL is read from `Api:BaseUrl` in the static configuration files:
+
+- Development: `wwwroot/appsettings.json`, currently `http://localhost:5255/`
+- Production: `wwwroot/appsettings.Production.json`, which contains the deployed API URL placeholder
+
+Keep the trailing slash on `Api:BaseUrl`. Because these files are shipped to the browser, do not put secrets or private credentials in them.
 
 ## Run locally
 
-1. Start the Accounting Engine API (expects it on `http://localhost:5000`).
-2. `dotnet run --project AccountingEngineAdmin` → opens `http://localhost:5001`.
+1. Start the Accounting Engine API at the URL configured in `wwwroot/appsettings.json`.
+2. From the repository root, run:
 
-## Deploy to Cloudflare Pages (free tier)
+   ```powershell
+   dotnet run
+   ```
 
-1. `dotnet publish -c Release` → output folder `bin/Release/net9.0/publish/wwwroot`.
-2. Point Cloudflare Pages at that folder (direct upload or Git CI with build command `dotnet publish -c Release`).
-3. `_redirects` (`/* /index.html 200`) is already included so deep links like `/accounts` work.
-4. **Before deploying**, replace the placeholder in `wwwroot/appsettings.Production.json`
-   (`Api:BaseUrl`) with the real Render URL of your API, including the trailing slash.
+3. Open <http://localhost:5001> when the development server starts.
 
-## Notes
+To use a different API locally, update `Api:BaseUrl` in `wwwroot/appsettings.json` before starting the client.
 
-- `DisableBuildCompression` is set in the csproj — workaround for a .NET SDK 9.0.3xx
-  static-web-assets bug (`MSB4018: Endpoints not found for related asset`). Cloudflare
-  compresses on the edge, so nothing is lost.
-- API CORS: the backend accepts any origin, so no proxying is required.
+## Build and publish
+
+Restore dependencies and create a production publish output with:
+
+```powershell
+dotnet restore
+dotnet build
+dotnet publish -c Release
+```
+
+The static site files are written to:
+
+```text
+bin/Release/net9.0/publish/wwwroot
+```
+
+The `bin/` and `obj/` directories are local build output and are excluded from Git.
+
+## Deploy to Cloudflare Pages
+
+1. Set the real API URL in `wwwroot/appsettings.Production.json`, including its trailing slash.
+2. Publish the application with `dotnet publish -c Release`.
+3. Deploy `bin/Release/net9.0/publish/wwwroot` as the Cloudflare Pages output directory.
+4. If using a Git-connected build, use `dotnet publish -c Release` as the build command and `bin/Release/net9.0/publish/wwwroot` as the output directory.
+
+The included `wwwroot/_redirects` file contains `/* /index.html 200`, which allows direct navigation to client-side routes such as `/accounts` and `/ledger`.
+
+## Troubleshooting notes
+
+- If the dashboard cannot load data, verify the API URL, that the API is running, and that its CORS policy allows the browser origin.
+- If a deep link returns a hosting-provider 404, verify that the `_redirects` file was included in the deployed `wwwroot` output.
+- `DisableBuildCompression` is enabled in the project file as a workaround for a .NET SDK 9.0.3xx static-web-assets compression issue (`MSB4018: Endpoints not found for related asset`). Static hosting still provides compression at the edge.
