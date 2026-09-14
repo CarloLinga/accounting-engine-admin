@@ -1,0 +1,27 @@
+.ledger-reference {
+    font-weight: 600;
+    font-family: "Cascadia Code", Consolas, monospace;
+    font-size: 0.85rem;
+}
+
+.ledger-description {
+    max-width: 360px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ledger-meta {
+    opacity: 0.85;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.ledger-totals {
+    margin-top: 0.75rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.ledger-card {
+    overflow-x: auto;
+}

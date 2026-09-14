@@ -1,0 +1,19 @@
+<RadzenStack Gap="0.4rem" class="stk-block">
+    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" class="stk-block-head">
+        <h3>@Section.Title</h3>
+        <strong>@ReportFormats.MoneySigned(Section.Subtotal)</strong>
+    </RadzenStack>
+
+    @foreach (var row in rows)
+    {
+        var amountClass = SectionBlock.AmountCss(row.Line);
+        var cssClass = $"stk-row {amountClass} stk-indent-{row.Indent}";
+        <div class="@cssClass">
+            <span>
+                <span class="stk-code">@row.Line.AccountCode</span>
+                @row.Line.AccountName
+            </span>
+            <span class="stk-amount">@ReportFormats.MoneySigned(row.Line.Amount)</span>
+        </div>
+    }
+</RadzenStack>

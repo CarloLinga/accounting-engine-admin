@@ -1,0 +1,38 @@
+﻿<RadzenStack Gap="1rem" class="statements-tab">
+    @if (CashFlow is null)
+    {
+        <p><em>No cash flow data.</em></p>
+    }
+    else
+    {
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End">
+            <span class="statements-badge @(CashFlow.IsBalanced ? "is-balanced" : "is-unbalanced")">
+                @(CashFlow.IsBalanced ? "Balanced" : "Not balanced")
+            </span>
+        </RadzenStack>
+
+        <RadzenStack Gap="1rem" Style="max-width: 760px;" class="statements-column">
+            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" class="statements-figure">
+                <span>Net income</span>
+                <strong>@ReportFormats.MoneySigned(CashFlow.NetIncome)</strong>
+            </RadzenStack>
+
+            <CashFlowSectionBlock Section="@CashFlow.Operating" />
+
+            <CashFlowSectionBlock Section="@CashFlow.Investing" />
+
+            <CashFlowSectionBlock Section="@CashFlow.Financing" />
+
+            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" class="statements-figure">
+                <span>Net change in cash</span>
+                <strong>@ReportFormats.MoneySigned(CashFlow.NetChangeInCash)</strong>
+            </RadzenStack>
+        </RadzenStack>
+
+        <RadzenStack Orientation="Orientation.Horizontal" Gap="2rem" Wrap="FlexWrap.Wrap" class="statements-footer">
+            <span>From <strong>@ReportFormats.Date(CashFlow.From)</strong> to <strong>@ReportFormats.Date(CashFlow.To)</strong></span>
+            <span>Beginning cash <strong>@ReportFormats.Money(CashFlow.BeginningCash)</strong></span>
+            <span>Ending cash <strong>@ReportFormats.Money(CashFlow.EndingCash)</strong></span>
+        </RadzenStack>
+    }
+</RadzenStack>

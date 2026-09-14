@@ -1,0 +1,102 @@
+@page "/ledger"
+
+<PageTitle>General Ledger</PageTitle>
+
+<RadzenStack Gap="1rem" class="ledger-page">
+    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween" Wrap="FlexWrap.Wrap" Gap="0.75rem">
+        <div>
+            <h1 class="page-title">General Ledger</h1>
+            <p class="page-subtitle">Posting-by-posting history of a single ledger account.</p>
+        </div>
+        @if (ledger is not null)
+        {
+            <span class="account-badge @AccountLabels.BadgeCss(ledger.AccountType)">@AccountLabels.For(ledger.AccountType)</span>
+        }
+    </RadzenStack>
+
+    <RadzenCard>
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.End" Gap="0.75rem" Wrap="FlexWrap.Wrap">
+            <RadzenStack Gap="0.25rem" Style="min-width: 260px; flex: 1 1 260px;">
+                <RadzenLabel Text="Account" />
+                <RadzenDropDown @bind-Value="accountCode" Data="@accounts" TextProperty="Code" ValueProperty="Code" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true" Placeholder="Select account..." Style="width:100%">
+                    <Template Context="account">@account.Code - @account.Name</Template>
+                </RadzenDropDown>
+            </RadzenStack>
+            <RadzenStack Gap="0.25rem" Style="min-width: 170px; flex: 1 1 170px;">
+                <RadzenLabel Text="From date (optional)" />
+                <RadzenDatePicker TValue="DateTime?" @bind-Value="fromDate" DateFormat="yyyy-MM-dd" ShowTime="false" Name="ledgerFrom" Style="width:100%" />
+            </RadzenStack>
+            <RadzenStack Gap="0.25rem" Style="min-width: 170px; flex: 1 1 170px;">
+                <RadzenLabel Text="To date (optional)" />
+                <RadzenDatePicker TValue="DateTime?" @bind-Value="toDate" DateFormat="yyyy-MM-dd" ShowTime="false" Name="ledgerTo" Style="width:100%" />
+            </RadzenStack>
+            <RadzenButton Text="Load" Icon="refresh" Click="@LoadAsync" ButtonStyle="ButtonStyle.Primary" />
+        </RadzenStack>
+    </RadzenCard>
+
+    @if (!string.IsNullOrEmpty(loadError))
+    {
+        <RadzenCard class="page-error">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.75rem">
+                <RadzenIcon Icon="error" />
+                <div style="flex: 1 1 auto;">@loadError</div>
+                <RadzenButton Text="Retry" Size="ButtonSize.Small" Click="@LoadAsync" ButtonStyle="ButtonStyle.Secondary" />
+            </RadzenStack>
+        </RadzenCard>
+    }
+
+    <RadzenCard class="ledger-card">
+        @if (string.IsNullOrWhiteSpace(accountCode))
+        {
+            <p>Select an account to view its posting history.</p>
+        }
+        else if (isLoading)
+        {
+            <p><em>Loading ledger...</em></p>
+        }
+        else if (ledger is not null)
+        {
+            <RadzenStack Orientation="Orientation.Horizontal" Gap="1.25rem" Wrap="FlexWrap.Wrap" class="ledger-meta">
+                <span><strong>@ledger.AccountCode</strong> - @ledger.AccountName</span>
+                <span>From <strong>@ReportFormats.Date(ledger.From)</strong> to <strong>@ReportFormats.Date(ledger.To)</strong></span>
+                @if (!ledger.IsActive)
+                {
+                    <span class="account-status is-inactive">Inactive</span>
+                }
+            </RadzenStack>
+
+            @if (ledger.Lines.Count == 0)
+            {
+                <p>No postings for this account in the selected period.</p>
+            }
+            else
+            {
+                <RadzenDataGrid TItem="LedgerLine" Data="@ledger.Lines" AllowPaging="true" PageSize="20" AllowSorting="true" class="ledger-grid">
+                    <Columns>
+                        <RadzenDataGridColumn TItem="LedgerLine" Property="PostedAt" Title="Posted" Width="150px" FormatString="{0:dd MMM yyyy}" />
+                        <RadzenDataGridColumn TItem="LedgerLine" Property="Reference" Title="Reference" Width="180px">
+                            <Template Context="line">
+                                <span class="ledger-reference">@line.Reference</span>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="LedgerLine" Property="Description" Title="Description">
+                            <Template Context="line">
+                                <div class="ledger-description" title="@line.Description">@line.Description</div>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="LedgerLine" Property="Debit" Title="Debit" Width="130px" TextAlign="TextAlign.Right" FormatString="{0:N2}" />
+                        <RadzenDataGridColumn TItem="LedgerLine" Property="Credit" Title="Credit" Width="130px" TextAlign="TextAlign.Right" FormatString="{0:N2}" />
+                        <RadzenDataGridColumn TItem="LedgerLine" Property="Balance" Title="Balance" Width="140px" TextAlign="TextAlign.Right" FormatString="{0:N2}" />
+                    </Columns>
+                </RadzenDataGrid>
+
+                <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="2rem" Wrap="FlexWrap.Wrap" class="ledger-totals">
+                    <span>Beginning: <strong>@ReportFormats.Money(ledger.BeginningBalance)</strong></span>
+                    <span>Total debit: <strong>@ReportFormats.Money(ledger.TotalDebit)</strong></span>
+                    <span>Total credit: <strong>@ReportFormats.Money(ledger.TotalCredit)</strong></span>
+                    <span>Ending: <strong>@ReportFormats.Money(ledger.EndingBalance)</strong></span>
+                </RadzenStack>
+            }
+        }
+    </RadzenCard>
+</RadzenStack>

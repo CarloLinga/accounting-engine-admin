@@ -1,0 +1,32 @@
+.trial-balance-badge {
+    display: inline-block;
+    padding: 0.2rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.trial-balance-badge.is-balanced {
+    background: #e8f5e9;
+    color: #1b5e20;
+}
+
+.trial-balance-badge.is-unbalanced {
+    background: #fdecea;
+    color: #b71c1c;
+}
+
+.trial-balance-meta {
+    opacity: 0.8;
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+}
+
+.trial-balance-totals {
+    margin-top: 0.75rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.trial-balance-card {
+    overflow-x: auto;
+}

@@ -1,0 +1,111 @@
+﻿@page "/"
+
+<PageTitle>Accounting Engine Admin</PageTitle>
+
+<RadzenStack Gap="1rem" class="home-page">
+    <RadzenCard>
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween" Wrap="FlexWrap.Wrap" Gap="1rem">
+            <RadzenStack Gap="0.5rem">
+                <h1 class="hero-title">Accounting Engine Admin</h1>
+                <p class="hero-subtitle">Chart of accounts management for the headless Accounting Engine API.</p>
+                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+                    <span class="api-dot @(apiOnline ? "on" : "off")"></span>
+                    <span class="api-url">@apiBaseUrl</span>
+                    <span class="account-status @(apiOnline ? "is-active" : "is-inactive")">@(apiOnline ? "Connected" : "Offline")</span>
+                </RadzenStack>
+            </RadzenStack>
+            <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" Wrap="FlexWrap.Wrap">
+                <RadzenButton Text="Manage Accounts" Icon="account_balance" Click="@GoToAccounts" ButtonStyle="ButtonStyle.Primary" />
+                <RadzenButton Text="New Account" Icon="add" Click="@OpenCreateAsync" ButtonStyle="ButtonStyle.Light" />
+            </RadzenStack>
+        </RadzenStack>
+    </RadzenCard>
+
+    @if (loading)
+    {
+        <RadzenCard><p><em>Loading dashboard...</em></p></RadzenCard>
+    }
+    else
+    {
+        <RadzenStack Orientation="Orientation.Horizontal" Gap="1rem" Wrap="FlexWrap.Wrap">
+            <RadzenCard class="stat-card" Style="flex: 1 1 160px;">
+                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.75rem">
+                    <RadzenIcon Icon="account_balance" />
+                    <div><div class="stat-value">@TotalCount</div><div class="stat-label">Total accounts</div></div>
+                </RadzenStack>
+            </RadzenCard>
+            <RadzenCard class="stat-card" Style="flex: 1 1 160px;">
+                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.75rem">
+                    <RadzenIcon Icon="check_circle" />
+                    <div><div class="stat-value">@ActiveCount</div><div class="stat-label">Active</div></div>
+                </RadzenStack>
+            </RadzenCard>
+            <RadzenCard class="stat-card" Style="flex: 1 1 160px;">
+                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.75rem">
+                    <RadzenIcon Icon="remove_circle" />
+                    <div><div class="stat-value">@InactiveCount</div><div class="stat-label">Inactive</div></div>
+                </RadzenStack>
+            </RadzenCard>
+            <RadzenCard class="stat-card" Style="flex: 1 1 160px;">
+                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.75rem">
+                    <RadzenIcon Icon="category" />
+                    <div><div class="stat-value">@TypesInUse</div><div class="stat-label">Account types in use</div></div>
+                </RadzenStack>
+            </RadzenCard>
+        </RadzenStack>
+
+        <RadzenStack Orientation="Orientation.Horizontal" Gap="1rem" Wrap="FlexWrap.Wrap" AlignItems="AlignItems.Start">
+            <RadzenCard class="panel-card" Style="flex: 1 1 340px;">
+                <h3>Portfolio mix</h3>
+                @if (typeSlices.Count == 0)
+                {
+                    <p>No accounts yet.</p>
+                }
+                else
+                {
+                    <RadzenChart Style="height: 280px;">
+                        <RadzenDonutSeries Data="@typeSlices" CategoryProperty="Label" ValueProperty="Count" />
+                        <RadzenLegend Position="LegendPosition.Bottom" />
+                    </RadzenChart>
+                }
+            </RadzenCard>
+            <RadzenCard class="panel-card" Style="flex: 2 1 320px;">
+                <h3>Accounts by type</h3>
+                @foreach (var t in AllTypes)
+                {
+                    <div class="type-row">
+                        <span class="account-badge @AccountLabels.BadgeCss(t)">@AccountLabels.For(t)</span>
+                        <strong>@CountByType(t)</strong>
+                    </div>
+                }
+            </RadzenCard>
+            <RadzenCard class="panel-card" Style="flex: 1 1 280px;">
+                <h3>Recently updated</h3>
+                @if (!RecentAccounts.Any())
+                {
+                    <p>No accounts yet.</p>
+                }
+                else
+                {
+                    @foreach (var a in RecentAccounts)
+                    {
+                        <div class="recent-row">
+                            <span><span class="recent-code">@a.Code</span>@a.Name</span>
+                            <span class="account-status @(a.IsActive ? "is-active" : "is-inactive")">@(a.IsActive ? "Active" : "Inactive")</span>
+                        </div>
+                    }
+                }
+            </RadzenCard>
+        </RadzenStack>
+    }
+
+    <RadzenCard class="panel-card">
+        <h3>API and docs</h3>
+        <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" Wrap="FlexWrap.Wrap">
+            <RadzenButton Text="API reference (Scalar)" Icon="menu_book" Click="@OpenScalarDocs" ButtonStyle="ButtonStyle.Secondary" />
+            <RadzenButton Text="Health check" Icon="monitor_heart" Click="@OpenHealth" ButtonStyle="ButtonStyle.Light" />
+            <RadzenButton Text="Refresh dashboard" Icon="refresh" Click="@RefreshAsync" ButtonStyle="ButtonStyle.Light" />
+        </RadzenStack>
+    </RadzenCard>
+</RadzenStack>
+

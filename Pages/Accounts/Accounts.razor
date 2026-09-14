@@ -1,0 +1,92 @@
+@page "/accounts"
+
+<PageTitle>Chart of Accounts</PageTitle>
+
+<RadzenStack Gap="1rem" class="accounts-page">
+    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween" Wrap="FlexWrap.Wrap" Gap="0.75rem">
+        <div>
+            <h1 class="accounts-title">Chart of Accounts</h1>
+            <p class="accounts-subtitle">Create, edit, activate and remove ledger accounts.</p>
+        </div>
+        <RadzenButton Text="New Account" Icon="add" Click="@OpenCreateAsync" ButtonStyle="ButtonStyle.Primary" />
+    </RadzenStack>
+
+    <RadzenCard>
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.End" Gap="0.75rem" Wrap="FlexWrap.Wrap">
+            <RadzenStack Gap="0.25rem" Style="min-width: 240px; flex: 1 1 260px;">
+                <RadzenLabel Text="Search" />
+                <RadzenTextBox Name="accountSearch" Placeholder="Code or name..." @bind-Value="searchText" @bind-Value:after="OnSearchInput" Style="width:100%" />
+            </RadzenStack>
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+                <RadzenCheckBox @bind-Value="includeInactive" TValue="bool" Name="includeInactive" @bind-Value:after="ReloadAfterToggle" />
+                <RadzenLabel Text="Include inactive" />
+            </RadzenStack>
+            <RadzenButton Text="Refresh" Icon="refresh" Click="@LoadAsync" ButtonStyle="ButtonStyle.Light" />
+        </RadzenStack>
+    </RadzenCard>
+
+    @if (!string.IsNullOrEmpty(loadError))
+    {
+        <RadzenCard class="accounts-error">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.75rem">
+                <RadzenIcon Icon="error" />
+                <div style="flex: 1 1 auto;">@loadError</div>
+                <RadzenButton Text="Retry" Size="ButtonSize.Small" Click="@LoadAsync" ButtonStyle="ButtonStyle.Secondary" />
+            </RadzenStack>
+        </RadzenCard>
+    }
+
+    <RadzenCard class="accounts-grid-card">
+        @if (isLoading)
+        {
+            <p><em>Loading accounts...</em></p>
+        }
+        else if (accounts.Count == 0 && string.IsNullOrEmpty(loadError))
+        {
+            <p>No accounts found. Adjust the search or create the first account.</p>
+        }
+        else
+        {
+            <RadzenDataGrid TItem="AccountResponse" Data="@accounts" AllowPaging="true" PageSize="15" AllowSorting="true" AllowFiltering="true">
+                <Columns>
+                    <RadzenDataGridColumn TItem="AccountResponse" Property="Code" Title="Code" Width="110px" />
+                    <RadzenDataGridColumn TItem="AccountResponse" Property="Name" Title="Name">
+                        <Template Context="a">
+                            <div>@a.Name</div>
+                            @if (!string.IsNullOrEmpty(a.ParentAccountCode))
+                            {
+                                <small class="accounts-parent">Parent: @a.ParentAccountCode</small>
+                            }
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="AccountResponse" Property="Type" Title="Type" Width="130px">
+                        <Template Context="a">
+                            <span class="account-badge @AccountLabels.BadgeCss(a.Type)">@AccountLabels.For(a.Type)</span>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="AccountResponse" Property="Statement" Title="Statement" Width="160px">
+                        <Template Context="a">
+                            <div>@AccountLabels.For(a.Statement)</div>
+                            <small class="accounts-parent">@StatementClass(a)</small>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="AccountResponse" Property="CashFlowActivity" Title="Cash flow" Width="130px">
+                        <Template Context="a">@AccountLabels.For(a.CashFlowActivity)</Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="AccountResponse" Property="IsActive" Title="Status" Width="110px" Filterable="false">
+                        <Template Context="a">
+                            <span class="account-status @(a.IsActive ? "is-active" : "is-inactive")">@(a.IsActive ? "Active" : "Inactive")</span>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="AccountResponse" Title="Actions" Width="150px" Sortable="false" Filterable="false">
+                        <Template Context="a">
+                            <RadzenButton Icon="edit" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Light" Click="@(() => OpenEditAsync(a))" />
+                            <RadzenButton Icon="@(a.IsActive ? "toggle_on" : "toggle_off")" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Info" Click="@(() => ToggleActiveAsync(a))" />
+                            <RadzenButton Icon="delete" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Danger" Click="@(() => DeleteAsync(a))" />
+                        </Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+            </RadzenDataGrid>
+        }
+    </RadzenCard>
+</RadzenStack>

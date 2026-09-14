@@ -1,0 +1,101 @@
+@page "/journals"
+
+<PageTitle>Journal Entries</PageTitle>
+
+<RadzenStack Gap="1rem" class="journals-page">
+    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween" Wrap="FlexWrap.Wrap" Gap="0.75rem">
+        <div>
+            <h1 class="page-title">Journal Entries</h1>
+            <p class="page-subtitle">Immutable postings from source systems and manual general journal entries.</p>
+        </div>
+        <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" Wrap="FlexWrap.Wrap">
+            <RadzenButton Text="Post General Journal" Icon="edit_note" Click="@OpenGeneralJournalAsync" ButtonStyle="ButtonStyle.Primary" />
+            <RadzenButton Text="Post Source Transaction" Icon="sync_alt" Click="@OpenSourceTransactionAsync" ButtonStyle="ButtonStyle.Secondary" />
+        </RadzenStack>
+    </RadzenStack>
+
+    <RadzenCard>
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.End" Gap="0.75rem" Wrap="FlexWrap.Wrap">
+            <RadzenStack Gap="0.25rem" Style="min-width: 180px; flex: 1 1 180px;">
+                <RadzenLabel Text="From date" />
+                <RadzenDatePicker TValue="DateTime?" @bind-Value="filterStart" DateFormat="yyyy-MM-dd" ShowTime="false" Name="filterStart" Style="width:100%" />
+            </RadzenStack>
+            <RadzenStack Gap="0.25rem" Style="min-width: 180px; flex: 1 1 180px;">
+                <RadzenLabel Text="To date" />
+                <RadzenDatePicker TValue="DateTime?" @bind-Value="filterEnd" DateFormat="yyyy-MM-dd" ShowTime="false" Name="filterEnd" Style="width:100%" />
+            </RadzenStack>
+            <RadzenStack Gap="0.25rem" Style="min-width: 200px; flex: 1 1 200px;">
+                <RadzenLabel Text="Source type" />
+                <RadzenTextBox Name="filterSourceType" @bind-Value="filterSourceType" Placeholder="e.g. CASH_INVOICE" Style="width:100%" />
+            </RadzenStack>
+            <RadzenButton Text="Apply" Icon="search" Click="@LoadAsync" ButtonStyle="ButtonStyle.Primary" />
+            <RadzenButton Text="Clear" Icon="clear" Click="@ClearFiltersAsync" ButtonStyle="ButtonStyle.Light" />
+        </RadzenStack>
+    </RadzenCard>
+
+    @if (!string.IsNullOrEmpty(loadError))
+    {
+        <RadzenCard class="page-error">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.75rem">
+                <RadzenIcon Icon="error" />
+                <div style="flex: 1 1 auto;">@loadError</div>
+                <RadzenButton Text="Retry" Size="ButtonSize.Small" Click="@LoadAsync" ButtonStyle="ButtonStyle.Secondary" />
+            </RadzenStack>
+        </RadzenCard>
+    }
+
+    <RadzenCard class="journals-grid-card">
+        @if (isLoading)
+        {
+            <p><em>Loading journal entries...</em></p>
+        }
+        else if (entries.Count == 0 && string.IsNullOrEmpty(loadError))
+        {
+            <p>No journal entries found for the selected filters.</p>
+        }
+        else
+        {
+            <RadzenDataGrid TItem="JournalEntryResponse" Data="@entries" AllowPaging="true" PageSize="15" AllowSorting="true" AllowFiltering="true">
+                <Columns>
+                    <RadzenDataGridColumn TItem="JournalEntryResponse" Property="PostedAt" Title="Posted" Width="150px" FormatString="{0:dd MMM yyyy HH:mm}" />
+                    <RadzenDataGridColumn TItem="JournalEntryResponse" Property="Reference" Title="Reference" Width="180px">
+                        <Template Context="entry">
+                            <span class="journals-reference">@entry.Reference</span>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="JournalEntryResponse" Property="SourceType" Title="Source type" Width="180px">
+                        <Template Context="entry">
+                            <span class="journals-source">@entry.SourceType</span>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="JournalEntryResponse" Property="Description" Title="Description">
+                        <Template Context="entry">
+                            <div class="journals-description" title="@entry.Description">@entry.Description</div>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="JournalEntryResponse" Title="Lines" Width="80px" Sortable="false" Filterable="false">
+                        <Template Context="entry">@entry.JournalLines.Count</Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="JournalEntryResponse" Title="Total debit" Width="130px" Sortable="false" Filterable="false" TextAlign="TextAlign.Right">
+                        <Template Context="entry"><span class="journals-money">@Amount(entry)</span></Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="JournalEntryResponse" Title="Actions" Width="90px" Sortable="false" Filterable="false">
+                        <Template Context="entry">
+                            <RadzenButton Icon="visibility" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Light" Click="@(() => OpenDetailAsync(entry))" />
+                        </Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+            </RadzenDataGrid>
+        }
+    </RadzenCard>
+</RadzenStack>
+
+@code {
+    private async Task ClearFiltersAsync()
+    {
+        filterStart = null;
+        filterEnd = null;
+        filterSourceType = string.Empty;
+        await LoadAsync();
+    }
+}

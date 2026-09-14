@@ -1,0 +1,58 @@
+<RadzenStack Gap="0.75rem" class="journal-detail">
+    @if (!string.IsNullOrEmpty(error))
+    {
+        <div class="dialog-error">@error</div>
+    }
+
+    @if (loading || entry is null)
+    {
+        <p><em>Loading journal entry...</em></p>
+    }
+    else
+    {
+        <RadzenStack Orientation="Orientation.Horizontal" Gap="1.25rem" Wrap="FlexWrap.Wrap">
+            <div>
+                <RadzenLabel Text="Reference" />
+                <div class="journal-detail-value"><span class="journals-reference">@entry.Reference</span></div>
+            </div>
+            <div>
+                <RadzenLabel Text="Source type" />
+                <div class="journal-detail-value"><span class="journals-source">@entry.SourceType</span></div>
+            </div>
+            <div>
+                <RadzenLabel Text="Posted at" />
+                <div class="journal-detail-value">@entry.PostedAt.ToString("dd MMM yyyy HH:mm")</div>
+            </div>
+        </RadzenStack>
+
+        @if (!string.IsNullOrEmpty(entry.Description))
+        {
+            <div>
+                <RadzenLabel Text="Description" />
+                <div class="journal-detail-value">@entry.Description</div>
+            </div>
+        }
+
+        <RadzenDataGrid TItem="JournalLineResponse" Data="@entry.JournalLines" AllowSorting="false" AllowFiltering="false" AllowPaging="false" class="journal-detail-lines">
+            <Columns>
+                <RadzenDataGridColumn TItem="JournalLineResponse" Property="Sequence" Title="#" Width="60px" />
+                <RadzenDataGridColumn TItem="JournalLineResponse" Property="AccountCode" Title="Account" Width="120px" />
+                <RadzenDataGridColumn TItem="JournalLineResponse" Property="AccountName" Title="Account name" />
+                <RadzenDataGridColumn TItem="JournalLineResponse" Property="Description" Title="Line description">
+                    <Template Context="line"><span title="@line.Description">@line.Description</span></Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="JournalLineResponse" Property="Debit" Title="Debit" Width="130px" TextAlign="TextAlign.Right" FormatString="{0:N2}" />
+                <RadzenDataGridColumn TItem="JournalLineResponse" Property="Credit" Title="Credit" Width="130px" TextAlign="TextAlign.Right" FormatString="{0:N2}" />
+            </Columns>
+        </RadzenDataGrid>
+
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="2rem" class="journal-detail-totals">
+            <span>Total debit: <strong>@TotalDebits.ToString("N2")</strong></span>
+            <span>Total credit: <strong>@TotalCredits.ToString("N2")</strong></span>
+        </RadzenStack>
+    }
+
+    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="0.5rem">
+        <RadzenButton Text="Close" ButtonStyle="ButtonStyle.Light" Click="@Close" />
+    </RadzenStack>
+</RadzenStack>

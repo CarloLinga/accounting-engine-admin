@@ -1,0 +1,86 @@
+@page "/source-rules"
+
+<PageTitle>Source Rules</PageTitle>
+
+<RadzenStack Gap="1rem" class="source-rules-page">
+    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween" Wrap="FlexWrap.Wrap" Gap="0.75rem">
+        <div>
+            <h1 class="page-title">Source Rules</h1>
+            <p class="page-subtitle">Posting templates for source-system transactions - how each source type books into the ledger.</p>
+        </div>
+        <RadzenButton Text="New Source Rule" Icon="add" Click="@OpenCreateAsync" ButtonStyle="ButtonStyle.Primary" />
+    </RadzenStack>
+
+    <RadzenCard>
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.End" Gap="0.75rem" Wrap="FlexWrap.Wrap">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem" Style="margin-left: auto;">
+                <RadzenLabel Text="Show inactive" />
+                <RadzenSwitch Name="showInactive" @bind-Value="showInactive" TValue="bool" />
+            </RadzenStack>
+            <RadzenButton Text="Refresh" Icon="refresh" Click="@LoadAsync" ButtonStyle="ButtonStyle.Light" />
+        </RadzenStack>
+    </RadzenCard>
+
+    @if (!string.IsNullOrEmpty(loadError))
+    {
+        <RadzenCard class="page-error">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.75rem">
+                <RadzenIcon Icon="error" />
+                <div style="flex: 1 1 auto;">@loadError</div>
+                <RadzenButton Text="Retry" Size="ButtonSize.Small" Click="@LoadAsync" ButtonStyle="ButtonStyle.Secondary" />
+            </RadzenStack>
+        </RadzenCard>
+    }
+
+    <RadzenCard class="source-rules-grid-card">
+        @if (isLoading)
+        {
+            <p><em>Loading source rules...</em></p>
+        }
+        else if (VisibleRulesCount == 0 && string.IsNullOrEmpty(loadError))
+        {
+            <p>No source rules found. Adjust the filters or create the first rule.</p>
+        }
+        else
+        {
+            <RadzenDataGrid TItem="SourceRuleResponse" Data="@visibleRules" AllowPaging="true" PageSize="15" AllowSorting="true" AllowFiltering="true" class="source-rules-grid">
+                <Columns>
+                    <RadzenDataGridColumn TItem="SourceRuleResponse" Property="SourceType" Title="Source type" Width="200px">
+                        <Template Context="rule">
+                            <span class="source-type">@rule.SourceType</span>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="SourceRuleResponse" Property="Description" Title="Description" />
+                    <RadzenDataGridColumn TItem="SourceRuleResponse" Title="Rule lines" Width="170px" Sortable="false" Filterable="false">
+                        <Template Context="rule">
+                            <div>@LineSummary(rule)</div>
+                            <small class="source-rules-detail" title="@LineDetails(rule)">@LineDetails(rule)</small>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="SourceRuleResponse" Property="IsManualEntryAllowed" Title="Manual entry" Width="120px" Filterable="false">
+                        <Template Context="rule">
+                            @if (rule.IsManualEntryAllowed)
+                            {
+                                <span class="source-rules-flag">Allowed</span>
+                            }
+                            else
+                            {
+                                <span class="source-rules-detail">Source only</span>
+                            }
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="SourceRuleResponse" Property="IsActive" Title="Status" Width="110px" Filterable="false">
+                        <Template Context="rule">
+                            <span class="account-status @(rule.IsActive ? "is-active" : "is-inactive")">@(rule.IsActive ? "Active" : "Inactive")</span>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="SourceRuleResponse" Title="Actions" Width="90px" Sortable="false" Filterable="false">
+                        <Template Context="rule">
+                            <RadzenButton Icon="@(rule.IsActive ? "toggle_on" : "toggle_off")" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Info" Click="@(() => ToggleActiveAsync(rule))" />
+                        </Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+            </RadzenDataGrid>
+        }
+    </RadzenCard>
+</RadzenStack>

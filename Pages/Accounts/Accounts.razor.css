@@ -1,0 +1,44 @@
+.accounts-title {
+    margin: 0;
+    font-size: 1.6rem;
+}
+
+.accounts-subtitle {
+    margin: 0.25rem 0 0;
+    opacity: 0.7;
+}
+
+.accounts-parent {
+    opacity: 0.65;
+}
+
+.accounts-error {
+    border-left: 4px solid #d13438;
+}
+
+.accounts-grid-card {
+    overflow-x: auto;
+}
+
+.account-badge {
+    display: inline-block;
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.account-badge--asset { background: #e3f2fd; color: #0d47a1; }
+.account-badge--liability { background: #fff3e0; color: #e65100; }
+.account-badge--equity { background: #e8f5e9; color: #1b5e20; }
+.account-badge--revenue { background: #ede7f6; color: #4527a0; }
+.account-badge--expense { background: #fce4ec; color: #b71c1c; }
+
+.account-status {
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.account-status.is-active { color: #107c10; }
+.account-status.is-inactive { color: #8a8a8a; }

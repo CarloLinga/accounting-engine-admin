@@ -1,0 +1,19 @@
+<RadzenStack Gap="0.4rem" class="section-block">
+    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" class="section-block-head">
+        <h3>@Section.Title</h3>
+        <strong>@ReportFormats.MoneySigned(Section.Subtotal)</strong>
+    </RadzenStack>
+
+    @foreach (var row in rows)
+    {
+        var padding = $"padding-left: {row.Indent * 0.9}rem;";
+        var cssClass = row.Adjustment.Amount < 0 ? "is-negative" : string.Empty;
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" class="@cssClass" Style="@padding">
+            <span>
+                <span class="section-block-code">@row.Adjustment.AccountCode</span>
+                @row.Adjustment.Label
+            </span>
+            <span class="section-block-amount">@ReportFormats.MoneySigned(row.Adjustment.Amount)</span>
+        </RadzenStack>
+    }
+</RadzenStack>

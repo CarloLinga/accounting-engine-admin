@@ -1,0 +1,66 @@
+<EditForm Model="@Model" OnValidSubmit="@SaveAsync">
+    <DataAnnotationsValidator />
+    <RadzenStack Gap="0.75rem">
+        @if (!string.IsNullOrEmpty(error))
+        {
+            <div class="dialog-error">@error</div>
+        }
+
+        <RadzenStack Gap="0.25rem">
+            <RadzenLabel Text="Source type" />
+            <RadzenDropDown @bind-Value="Model.SourceType" Data="ruleOptions" TextProperty="Label" ValueProperty="Value" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Placeholder="Select source type..." Style="width:100%" Change="(value => OnRuleChanged(value))" />
+            <ValidationMessage For="@(() => Model.SourceType)" />
+        </RadzenStack>
+
+        <RadzenStack Orientation="Orientation.Horizontal" Gap="0.75rem" Wrap="FlexWrap.Wrap">
+            <RadzenStack Gap="0.25rem" Style="flex: 1 1 200px;">
+                <RadzenLabel Text="Reference" />
+                <RadzenTextBox Name="Reference" @bind-Value="Model.Reference" Placeholder="e.g. INV-2026-0150" Style="width:100%" />
+                <ValidationMessage For="@(() => Model.Reference)" />
+            </RadzenStack>
+            <RadzenStack Gap="0.25rem" Style="flex: 1 1 180px;">
+                <RadzenLabel Text="Posting date" />
+                <RadzenDatePicker TValue="DateTime?" @bind-Value="Model.PostedOn" DateFormat="yyyy-MM-dd" ShowTime="false" Name="PostedOn" Style="width:100%" />
+                <ValidationMessage For="@(() => Model.PostedOn)" />
+            </RadzenStack>
+        </RadzenStack>
+
+        <RadzenStack Gap="0.25rem">
+            <RadzenLabel Text="Description (optional)" />
+            <RadzenTextBox Name="Description" @bind-Value="Model.Description" Placeholder="What this transaction is for" Style="width:100%" />
+            <ValidationMessage For="@(() => Model.Description)" />
+        </RadzenStack>
+
+        <RadzenStack Gap="0.5rem" class="source-tx-amounts">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween">
+                <RadzenLabel Text="Amounts" />
+                <RadzenButton Text="Add amount" Icon="add" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Secondary" Click="@AddAmount" Type="ButtonType.Button" />
+            </RadzenStack>
+
+            <RadzenStack Gap="0.4rem" class="source-tx-amounts-list">
+                @foreach (var amount in Model.Amounts)
+                {
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.End" Gap="0.4rem" Wrap="FlexWrap.Wrap">
+                        <RadzenStack Gap="0.25rem" Style="flex: 1 1 220px;">
+                            <RadzenLabel Text="Amount name" />
+                            <RadzenTextBox @bind-Value="amount.Key" Placeholder="e.g. TOTAL_AMOUNT" Style="width:100%" />
+                            <ValidationMessage For="@(() => amount.Key)" />
+                        </RadzenStack>
+                        <RadzenStack Gap="0.25rem" Style="flex: 1 1 160px;">
+                            <RadzenLabel Text="Value" />
+                            <RadzenNumeric TValue="decimal?" @bind-Value="amount.Value" Style="width:100%" />
+                            <ValidationMessage For="@(() => amount.Value)" />
+                        </RadzenStack>
+                        <RadzenButton Icon="delete" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Danger" Click="@(() => RemoveAmount(amount))" Type="ButtonType.Button" />
+                    </RadzenStack>
+                }
+            </RadzenStack>
+            <p class="source-tx-hint">Amount names usually match the source rule's amount types (TOTAL_AMOUNT, BASE_AMOUNT, TAX_AMOUNT). The engine books the entry from the source rule and consumes these amounts.</p>
+        </RadzenStack>
+
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="0.5rem" Style="margin-top: 0.5rem;">
+            <RadzenButton Text="Cancel" ButtonStyle="ButtonStyle.Light" Click="@Cancel" Disabled="@saving" />
+            <RadzenButton Text="@(saving ? "Posting..." : "Post transaction")" ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Disabled="@saving" Icon="check" />
+        </RadzenStack>
+    </RadzenStack>
+</EditForm>

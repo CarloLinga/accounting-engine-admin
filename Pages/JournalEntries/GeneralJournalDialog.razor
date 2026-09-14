@@ -1,0 +1,85 @@
+<EditForm Model="@Model" OnValidSubmit="@SaveAsync">
+    <DataAnnotationsValidator />
+    <RadzenStack Gap="0.75rem">
+        @if (!string.IsNullOrEmpty(error))
+        {
+            <div class="dialog-error">@error</div>
+        }
+
+        <RadzenStack Orientation="Orientation.Horizontal" Gap="0.75rem" Wrap="FlexWrap.Wrap">
+            <RadzenStack Gap="0.25rem" Style="flex: 1 1 200px;">
+                <RadzenLabel Text="Source type" />
+                <RadzenTextBox Name="SourceType" @bind-Value="Model.SourceType" Style="width:100%" />
+                <ValidationMessage For="@(() => Model.SourceType)" />
+            </RadzenStack>
+            <RadzenStack Gap="0.25rem" Style="flex: 1 1 200px;">
+                <RadzenLabel Text="Reference" />
+                <RadzenTextBox Name="Reference" @bind-Value="Model.Reference" Placeholder="e.g. GJ-2026-0001" Style="width:100%" />
+                <ValidationMessage For="@(() => Model.Reference)" />
+            </RadzenStack>
+            <RadzenStack Gap="0.25rem" Style="flex: 1 1 180px;">
+                <RadzenLabel Text="Posting date" />
+                <RadzenDatePicker TValue="DateTime?" @bind-Value="Model.PostedOn" DateFormat="yyyy-MM-dd" ShowTime="false" Name="PostedOn" Style="width:100%" />
+                <ValidationMessage For="@(() => Model.PostedOn)" />
+            </RadzenStack>
+        </RadzenStack>
+
+        <RadzenStack Gap="0.25rem">
+            <RadzenLabel Text="Description (optional)" />
+            <RadzenTextBox Name="Description" @bind-Value="Model.Description" Placeholder="What this entry is for" Style="width:100%" />
+        </RadzenStack>
+
+        <RadzenStack Gap="0.5rem" class="gj-lines">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween">
+                <RadzenLabel Text="Journal lines" />
+                <RadzenButton Text="Add line" Icon="add" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Secondary" Click="@AddLine" Type="ButtonType.Button" />
+            </RadzenStack>
+
+            <RadzenStack Gap="0.4rem" class="gj-lines-list">
+                @foreach (var line in Model.Lines)
+                {
+                    var lineNumber = Model.Lines.IndexOf(line) + 1;
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.End" Gap="0.4rem" Wrap="FlexWrap.Wrap" class="gj-line">
+                        <RadzenStack Gap="0.25rem" Style="flex: 1 1 220px;">
+                            <RadzenLabel Text="@($"Line {lineNumber} account")" />
+                            <RadzenDropDown @bind-Value="line.AccountCode" Data="@postableAccounts" TextProperty="Code" ValueProperty="Code" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true" Placeholder="Select account..." Style="width:100%">
+                                <Template Context="account">@account.Code - @account.Name</Template>
+                            </RadzenDropDown>
+                            <ValidationMessage For="@(() => line.AccountCode)" />
+                        </RadzenStack>
+                        <RadzenStack Gap="0.25rem" Style="flex: 1 1 130px;">
+                            <RadzenLabel Text="Debit" />
+                            <RadzenNumeric TValue="decimal?" @bind-Value="line.Debit" Style="width:100%" />
+                            <ValidationMessage For="@(() => line.Debit)" />
+                        </RadzenStack>
+                        <RadzenStack Gap="0.25rem" Style="flex: 1 1 130px;">
+                            <RadzenLabel Text="Credit" />
+                            <RadzenNumeric TValue="decimal?" @bind-Value="line.Credit" Style="width:100%" />
+                            <ValidationMessage For="@(() => line.Credit)" />
+                        </RadzenStack>
+                        <RadzenStack Gap="0.25rem" Style="flex: 1 1 200px;">
+                            <RadzenLabel Text="Line description" />
+                            <RadzenTextBox @bind-Value="line.Description" Style="width:100%" />
+                        </RadzenStack>
+                        <RadzenButton Icon="delete" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Danger" Click="@(() => RemoveLine(line))" Type="ButtonType.Button" />
+                    </RadzenStack>
+                }
+            </RadzenStack>
+        </RadzenStack>
+
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="1.25rem" Wrap="FlexWrap.Wrap">
+            <span class="gj-totals @(Model.IsBalanced ? "" : "is-unbalanced")">
+                Debit @Model.TotalDebits.ToString("N2")  |  Credit @Model.TotalCredits.ToString("N2")
+                @if (!Model.IsBalanced)
+                {
+                    <span>  |  Not balanced</span>
+                }
+            </span>
+        </RadzenStack>
+
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="0.5rem" Style="margin-top: 0.5rem;">
+            <RadzenButton Text="Cancel" ButtonStyle="ButtonStyle.Light" Click="@Cancel" Disabled="@saving" />
+            <RadzenButton Text="@(saving ? "Posting..." : "Post entry")" ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Disabled="@saving" Icon="check" />
+        </RadzenStack>
+    </RadzenStack>
+</EditForm>

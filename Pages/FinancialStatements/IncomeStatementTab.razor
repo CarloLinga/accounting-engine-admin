@@ -1,0 +1,51 @@
+﻿<RadzenStack Gap="1rem" class="statements-tab">
+    @if (IncomeStatement is null)
+    {
+        <p><em>No income statement data.</em></p>
+    }
+    else
+    {
+        <RadzenStack Gap="1rem" Style="max-width: 760px;" class="statements-column">
+            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" class="statements-column-head">
+                <h2>Revenue</h2>
+                <strong>@ReportFormats.MoneySigned(IncomeStatement.TotalRevenue)</strong>
+            </RadzenStack>
+            @foreach (var sec in IncomeStatement.RevenueSections.Where(ShowSection))
+            {
+                <SectionBlock Section="sec" />
+            }
+
+            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" class="statements-figure">
+                <span>Total cost of goods sold</span>
+                <strong>@ReportFormats.MoneySigned(IncomeStatement.TotalCostOfGoodsSold)</strong>
+            </RadzenStack>
+            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" class="statements-figure">
+                <span>Gross profit</span>
+                <strong>@ReportFormats.MoneySigned(IncomeStatement.GrossProfit)</strong>
+            </RadzenStack>
+
+            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" class="statements-column-head" Style="margin-top: 1rem;">
+                <h2>Expenses</h2>
+                <strong>@ReportFormats.MoneySigned(IncomeStatement.TotalOperatingExpenses)</strong>
+            </RadzenStack>
+            @foreach (var sec in IncomeStatement.ExpenseSections.Where(ShowSection))
+            {
+                <SectionBlock Section="sec" />
+            }
+
+            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" class="statements-figure">
+                <span>Operating income</span>
+                <strong>@ReportFormats.MoneySigned(IncomeStatement.OperatingIncome)</strong>
+            </RadzenStack>
+            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" class="statements-figure">
+                <span>Non-operating total</span>
+                <strong>@ReportFormats.MoneySigned(IncomeStatement.TotalNonOperating)</strong>
+            </RadzenStack>
+        </RadzenStack>
+
+        <RadzenStack Orientation="Orientation.Horizontal" Gap="2rem" Wrap="FlexWrap.Wrap" class="statements-footer">
+            <span>From <strong>@ReportFormats.Date(IncomeStatement.From)</strong> to <strong>@ReportFormats.Date(IncomeStatement.To)</strong></span>
+            <span class="statements-net-income">Net income <strong>@ReportFormats.MoneySigned(IncomeStatement.NetIncome)</strong></span>
+        </RadzenStack>
+    }
+</RadzenStack>

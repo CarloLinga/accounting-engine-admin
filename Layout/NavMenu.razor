@@ -1,0 +1,91 @@
+﻿<div class="top-row @(collapseSidebar ? "collapsed" : "")">
+    <button type="button" title="Toggle sidebar" aria-label="Toggle sidebar" class="nav-toggler" @onclick="ToggleSidebarCollapse">
+        <span class="nav-toggler-icon"></span>
+    </button>
+    <img src="brand-logo.png" class="brand-logo ms-3" alt="Brand logo" />
+</div>
+
+<div class="@NavMenuCssClass nav-scrollable @(collapseSidebar ? "collapsed" : "")" @onclick="ToggleNavMenu">
+    <nav class="nav flex-column">
+        <div class="nav-item">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span>
+                @if (!collapseSidebar)
+                {
+                    <span class="nav-text">Home</span>
+                }
+            </NavLink>
+        </div>
+        <div class="nav-item">
+            <NavLink class="nav-link" href="accounts">
+                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span>
+                @if (!collapseSidebar)
+                {
+                    <span class="nav-text">Chart of Accounts</span>
+                }
+            </NavLink>
+        </div>
+        <div class="nav-item">
+            <NavLink class="nav-link" href="source-rules">
+                <span class="bi bi-gear-fill-nav-menu" aria-hidden="true"></span>
+                @if (!collapseSidebar)
+                {
+                    <span class="nav-text">Source Rules</span>
+                }
+            </NavLink>
+        </div>
+        <div class="nav-item">
+            <NavLink class="nav-link" href="journals">
+                <span class="bi bi-arrow-left-right-nav-menu" aria-hidden="true"></span>
+                @if (!collapseSidebar)
+                {
+                    <span class="nav-text">Journal Entries</span>
+                }
+            </NavLink>
+        </div>
+        <div class="nav-item">
+            <NavLink class="nav-link" href="trial-balance">
+                <span class="bi bi-clipboard2-data-fill-nav-menu" aria-hidden="true"></span>
+                @if (!collapseSidebar)
+                {
+                    <span class="nav-text">Trial Balance</span>
+                }
+            </NavLink>
+        </div>
+        <div class="nav-item">
+            <NavLink class="nav-link" href="ledger">
+                <span class="bi bi-journal-bookmark-fill-nav-menu" aria-hidden="true"></span>
+                @if (!collapseSidebar)
+                {
+                    <span class="nav-text">General Ledger</span>
+                }
+            </NavLink>
+        </div>
+        <div class="nav-item">
+            <NavLink class="nav-link" href="financial-statements">
+                <span class="bi bi-graph-up-nav-menu" aria-hidden="true"></span>
+                @if (!collapseSidebar)
+                {
+                    <span class="nav-text">Financial Statements</span>
+                }
+            </NavLink>
+        </div>
+    </nav>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+    private bool collapseSidebar = false;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+    private void ToggleSidebarCollapse()
+    {
+        collapseSidebar = !collapseSidebar;
+    }
+}

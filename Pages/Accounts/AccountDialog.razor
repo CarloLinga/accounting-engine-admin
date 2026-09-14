@@ -1,0 +1,91 @@
+<EditForm Model="@Model" OnValidSubmit="@SaveAsync">
+    <DataAnnotationsValidator />
+    <RadzenStack Gap="0.75rem">
+        @if (!string.IsNullOrEmpty(error))
+        {
+            <div class="dialog-error">@error</div>
+        }
+
+        <RadzenStack Gap="0.25rem">
+            <RadzenLabel Text="Code" />
+            <RadzenTextBox Name="Code" @bind-Value="Model.Code" Disabled="@(!IsCreate)" Placeholder="e.g. 1000" Style="width:100%" />
+            <ValidationMessage For="@(() => Model.Code)" />
+        </RadzenStack>
+
+        <RadzenStack Gap="0.25rem">
+            <RadzenLabel Text="Name" />
+            <RadzenTextBox Name="Name" @bind-Value="Model.Name" Placeholder="e.g. Cash in Bank" Style="width:100%" />
+            <ValidationMessage For="@(() => Model.Name)" />
+        </RadzenStack>
+
+        <RadzenStack Gap="0.25rem">
+            <RadzenLabel Text="Account type" />
+            <RadzenDropDown @bind-Value="Model.Type" Data="@AccountOptions.AccountTypes" TextProperty="Label" ValueProperty="Value" AllowClear="true" Placeholder="Select type..." Style="width:100%" />
+            <ValidationMessage For="@(() => Model.Type)" />
+        </RadzenStack>
+
+        <RadzenStack Orientation="Orientation.Horizontal" Gap="0.75rem" Wrap="FlexWrap.Wrap">
+            <RadzenStack Gap="0.25rem" Style="flex: 1 1 200px;">
+                <RadzenLabel Text="Financial statement" />
+                <RadzenDropDown @bind-Value="Model.Statement" Data="@AccountOptions.Statements" TextProperty="Label" ValueProperty="Value" Style="width:100%" />
+            </RadzenStack>
+            <RadzenStack Gap="0.25rem" Style="flex: 1 1 200px;">
+                <RadzenLabel Text="Cash flow activity" />
+                <RadzenDropDown @bind-Value="Model.CashFlowActivity" Data="@AccountOptions.CashFlowActivities" TextProperty="Label" ValueProperty="Value" Style="width:100%" />
+            </RadzenStack>
+        </RadzenStack>
+
+        @if (Model.Statement == FinancialStatement.BalanceSheet)
+        {
+            <RadzenStack Gap="0.25rem">
+                <RadzenLabel Text="Balance sheet class" />
+                <RadzenDropDown @bind-Value="Model.BalanceSheetClass" Data="@AccountOptions.BalanceSheetClasses" TextProperty="Label" ValueProperty="Value" AllowClear="true" Placeholder="Select class..." Style="width:100%" />
+            </RadzenStack>
+        }
+        else
+        {
+            <RadzenStack Gap="0.25rem">
+                <RadzenLabel Text="Income statement class" />
+                <RadzenDropDown @bind-Value="Model.IncomeStatementClass" Data="@AccountOptions.IncomeStatementClasses" TextProperty="Label" ValueProperty="Value" AllowClear="true" Placeholder="Select class..." Style="width:100%" />
+            </RadzenStack>
+        }
+
+        <RadzenStack Orientation="Orientation.Horizontal" Gap="0.75rem" Wrap="FlexWrap.Wrap">
+            <RadzenStack Gap="0.25rem" Style="flex: 1 1 200px;">
+                <RadzenLabel Text="Parent account code (optional)" />
+                <RadzenTextBox Name="ParentAccountCode" @bind-Value="Model.ParentAccountCode" Disabled="@(!IsCreate)" Style="width:100%" />
+            </RadzenStack>
+            <RadzenStack Gap="0.25rem" Style="flex: 1 1 200px;">
+                <RadzenLabel Text="Display order" />
+                <RadzenNumeric TValue="int" @bind-Value="Model.DisplayOrder" Disabled="@(!IsCreate)" Style="width:100%" />
+            </RadzenStack>
+        </RadzenStack>
+
+        <RadzenStack Orientation="Orientation.Horizontal" Gap="1rem" Wrap="FlexWrap.Wrap">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.4rem">
+                <RadzenCheckBox @bind-Value="Model.IsCashEquivalent" TValue="bool" Name="IsCashEquivalent" />
+                <RadzenLabel Text="Cash equivalent" />
+            </RadzenStack>
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.4rem">
+                <RadzenCheckBox @bind-Value="Model.IsContra" TValue="bool" Name="IsContra" />
+                <RadzenLabel Text="Contra account" />
+            </RadzenStack>
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.4rem">
+                <RadzenCheckBox @bind-Value="Model.IsPostable" TValue="bool" Name="IsPostable" />
+                <RadzenLabel Text="Postable" />
+            </RadzenStack>
+            @if (!IsCreate)
+            {
+                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.4rem">
+                    <RadzenCheckBox @bind-Value="Model.IsActive" TValue="bool" Name="IsActive" />
+                    <RadzenLabel Text="Active" />
+                </RadzenStack>
+            }
+        </RadzenStack>
+
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="0.5rem" Style="margin-top: 0.5rem;">
+            <RadzenButton Text="Cancel" ButtonStyle="ButtonStyle.Light" Click="@Cancel" Disabled="@saving" />
+            <RadzenButton Text="@(saving ? "Saving..." : (IsCreate ? "Create" : "Save"))" ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Disabled="@saving" Icon="check" />
+        </RadzenStack>
+    </RadzenStack>
+</EditForm>

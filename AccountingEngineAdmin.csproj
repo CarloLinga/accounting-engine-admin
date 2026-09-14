@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <!-- Workaround for SDK 9.0.3xx bug: MSB4018 ApplyCompressionNegotiation
+         "Endpoints not found for related asset: wwwroot\appsettings.json".
+         Build/publish-time precompression is disabled; Cloudflare Pages
+         compresses on the edge anyway. -->
+    <DisableBuildCompression>true</DisableBuildCompression>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="9.0.10" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="9.0.10" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="9.0.10" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.10" />
+    <PackageReference Include="Radzen.Blazor" Version="11.3.2" />
+  </ItemGroup>
+
+</Project>

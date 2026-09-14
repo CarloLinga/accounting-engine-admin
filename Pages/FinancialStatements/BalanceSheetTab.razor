@@ -1,0 +1,57 @@
+﻿<RadzenStack Gap="1rem" class="statements-tab">
+    @if (BalanceSheet is null)
+    {
+        <p><em>No balance sheet data.</em></p>
+    }
+    else
+    {
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End">
+            <span class="statements-badge @(BalanceSheet.IsBalanced ? "is-balanced" : "is-unbalanced")">
+                @(BalanceSheet.IsBalanced ? "Balanced" : "Not balanced")
+            </span>
+        </RadzenStack>
+
+        <RadzenStack Orientation="Orientation.Horizontal" Gap="3rem" Wrap="FlexWrap.Wrap">
+            <RadzenStack Gap="1rem" Style="flex: 1 1 380px;" class="statements-column">
+                <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" class="statements-column-head">
+                    <h2>Assets</h2>
+                    <strong>@ReportFormats.MoneySigned(BalanceSheet.TotalAssets)</strong>
+                </RadzenStack>
+                @foreach (var sec in BalanceSheet.AssetSections.Where(ShowSection))
+                {
+                    <SectionBlock Section="sec" />
+                }
+            </RadzenStack>
+
+            <RadzenStack Gap="1rem" Style="flex: 1 1 380px;" class="statements-column">
+                <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" class="statements-column-head">
+                    <h2>Liabilities</h2>
+                    <strong>@ReportFormats.MoneySigned(BalanceSheet.TotalLiabilities)</strong>
+                </RadzenStack>
+                @foreach (var sec in BalanceSheet.LiabilitySections.Where(ShowSection))
+                {
+                    <SectionBlock Section="sec" />
+                }
+
+                <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" class="statements-column-head" Style="margin-top: 1rem;">
+                    <h2>Equity</h2>
+                    <strong>@ReportFormats.MoneySigned(BalanceSheet.TotalEquity)</strong>
+                </RadzenStack>
+                @foreach (var sec in BalanceSheet.EquitySections.Where(ShowSection))
+                {
+                    <SectionBlock Section="sec" />
+                }
+                <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" class="statements-section-subtotal">
+                    <span>Current earnings</span>
+                    <strong>@ReportFormats.MoneySigned(BalanceSheet.CurrentEarnings)</strong>
+                </RadzenStack>
+            </RadzenStack>
+        </RadzenStack>
+
+        <RadzenStack Orientation="Orientation.Horizontal" Gap="2rem" Wrap="FlexWrap.Wrap" class="statements-footer">
+            <span>As of <strong>@ReportFormats.Date(BalanceSheet.AsOf)</strong></span>
+            <span>Total assets <strong>@ReportFormats.MoneySigned(BalanceSheet.TotalAssets)</strong></span>
+            <span>Liabilities + equity <strong>@ReportFormats.MoneySigned(BalanceSheet.TotalLiabilities + BalanceSheet.TotalEquity)</strong></span>
+        </RadzenStack>
+    }
+</RadzenStack>

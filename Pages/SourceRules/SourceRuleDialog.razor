@@ -1,0 +1,76 @@
+@using AccountingEngineAdmin.Models.Accounts
+
+<EditForm Model="@Model" OnValidSubmit="@SaveAsync">
+    <DataAnnotationsValidator />
+    <RadzenStack Gap="0.75rem">
+        @if (!string.IsNullOrEmpty(error))
+        {
+            <div class="dialog-error">@error</div>
+        }
+
+        <RadzenStack Orientation="Orientation.Horizontal" Gap="0.75rem" Wrap="FlexWrap.Wrap">
+            <RadzenStack Gap="0.25rem" Style="flex: 1 1 240px;">
+                <RadzenLabel Text="Source type" />
+                <RadzenTextBox Name="SourceType" @bind-Value="Model.SourceType" Placeholder="e.g. CASH_INVOICE" Style="width:100%" />
+                <ValidationMessage For="@(() => Model.SourceType)" />
+            </RadzenStack>
+            <RadzenStack Gap="0.25rem" Style="flex: 1 1 240px;">
+                <RadzenLabel Text="Description" />
+                <RadzenTextBox Name="Description" @bind-Value="Model.Description" Placeholder="What this source type is" Style="width:100%" />
+                <ValidationMessage For="@(() => Model.Description)" />
+            </RadzenStack>
+        </RadzenStack>
+
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.4rem">
+            <RadzenCheckBox @bind-Value="Model.IsActive" TValue="bool" Name="IsActive" />
+            <RadzenLabel Text="Rule is active" />
+        </RadzenStack>
+
+        <RadzenStack Gap="0.5rem" class="source-rule-lines">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween">
+                <RadzenLabel Text="Rule lines (optional)" />
+                <RadzenButton Text="Add line" Icon="add" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Secondary" Click="@AddLine" Type="ButtonType.Button" />
+            </RadzenStack>
+            <RadzenStack Gap="0.4rem" class="source-rule-lines-list">
+                @foreach (var line in Model.RuleLines)
+                {
+                    var lineNumber = Model.RuleLines.IndexOf(line) + 1;
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.End" Gap="0.4rem" Wrap="FlexWrap.Wrap" class="source-rule-line">
+                        <RadzenStack Gap="0.25rem" Style="flex: 1 1 220px;">
+                            <RadzenLabel Text="@($"Line {lineNumber} account")" />
+                            <RadzenDropDown @bind-Value="line.AccountCode" Data="@postableAccounts" TextProperty="Code" ValueProperty="Code" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true" Placeholder="Select account..." Style="width:100%">
+                                <Template Context="account">@account.Code - @account.Name</Template>
+                            </RadzenDropDown>
+                            <ValidationMessage For="@(() => line.AccountCode)" />
+                        </RadzenStack>
+                        <RadzenStack Gap="0.25rem" Style="flex: 1 1 130px;">
+                            <RadzenLabel Text="Debit %" />
+                            <RadzenNumeric @bind-Value="line.DebitPercentage" TValue="decimal?" Style="width:100%" />
+                            <ValidationMessage For="@(() => line.DebitPercentage)" />
+                        </RadzenStack>
+                        <RadzenStack Gap="0.25rem" Style="flex: 1 1 130px;">
+                            <RadzenLabel Text="Credit %" />
+                            <RadzenNumeric @bind-Value="line.CreditPercentage" TValue="decimal?" Style="width:100%" />
+                            <ValidationMessage For="@(() => line.CreditPercentage)" />
+                        </RadzenStack>
+                        <RadzenStack Gap="0.25rem" Style="flex: 1 1 170px;">
+                            <RadzenLabel Text="Amount type" />
+                            <RadzenDropDown @bind-Value="line.AmountType" Data="@RuleAmountTypeOptions.AmountTypes" TextProperty="Label" ValueProperty="Value" Style="width:100%" />
+                            <ValidationMessage For="@(() => line.AmountType)" />
+                        </RadzenStack>
+                        <RadzenButton Icon="delete" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Danger" Click="@(() => RemoveLine(line))" Type="ButtonType.Button" />
+                    </RadzenStack>
+                }
+                @if (Model.RuleLines.Count == 0)
+                {
+                    <p class="source-rule-lines-empty">No rule lines. The rule posts nothing by itself until lines are added.</p>
+                }
+            </RadzenStack>
+        </RadzenStack>
+
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="0.5rem" Style="margin-top: 0.5rem;">
+            <RadzenButton Text="Cancel" ButtonStyle="ButtonStyle.Light" Click="@Cancel" Disabled="@saving" />
+            <RadzenButton Text="@(saving ? "Creating..." : "Create rule")" ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Disabled="@saving" Icon="check" />
+        </RadzenStack>
+    </RadzenStack>
+</EditForm>

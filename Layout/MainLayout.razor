@@ -1,0 +1,21 @@
+﻿@inherits LayoutComponentBase
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+        <div class="top-row px-4">
+            <span class="app-heading">Accounting Engine Admin</span>
+        </div>
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+@* Radzen service hosts: DialogService/NotificationService raise events that these
+   components render. Without them, dialogs and notifications never appear. *@
+<RadzenDialog />
+<RadzenNotification />
