@@ -20,13 +20,30 @@ public partial class SourceRuleDialog : ComponentBase
     [Parameter] public bool IsCreate { get; set; } = true;
 
     /// <summary>
-    /// Route key for PUT /api/SourceRules/{sourceType}. The backend allows
-    /// renaming, so this preserves the original value while Model.SourceType
-    /// carries the (possibly edited) new value.
+    /// The stable row key (GET /api/SourceRules/{id} / PUT /api/SourceRules/{id}).
+    /// Renames edit Model.SourceType freely -- the Id in the route is what
+    /// locates the row, so XXX -&gt; XXX_UPDATED can no longer 404 or hit the
+    /// wrong row the way PUT-by-sourceType could.
+    /// </summary>
+    [Parameter] public Guid? RuleId { get; set; }
+
+    /// <summary>
+    /// Pre-edit sourceType, captured by the caller before the dialog opens.
+    /// Only used as fallback context (e.g. legacy PUT-by-sourceType on old
+    /// backends); the Id route itself does not need it.
     /// </summary>
     [Parameter] public string? OriginalSourceType { get; set; }
 
     private List<AccountResponse> accounts = [];
+
+    /// <summary>
+    /// Amount-type suggestions for the rule-line autocomplete. Seeded with
+    /// the client-side defaults, then replaced by the API list
+    /// (GET /api/SourceRules/amount-types: distinct types referenced by
+    /// rules merged with the engine's defaults) when it responds.
+    /// </summary>
+    private List<string> amountTypeOptions = RuleAmountTypeOptions.AmountTypes;
+
     private bool saving;
     private string? error;
 
@@ -44,6 +61,24 @@ public partial class SourceRuleDialog : ComponentBase
         catch (HttpRequestException)
         {
             // Same as above - keep the dialog usable offline.
+        }
+
+        try
+        {
+            var fromApi = await Api.GetAmountTypesAsync();
+            if (fromApi.Count > 0)
+            {
+                amountTypeOptions = fromApi.ToList();
+            }
+        }
+        catch (ApiException)
+        {
+            // Keep the client-side defaults; the API list is a superset of
+            // them, so nothing is lost offline.
+        }
+        catch (HttpRequestException)
+        {
+            // Same - keep the dialog usable offline.
         }
 
         if (IsCreate && !Model.IsManualEntryAllowed && Model.RuleLines.Count == 0)
@@ -91,9 +126,14 @@ public partial class SourceRuleDialog : ComponentBase
                 }
             }
 
+            // OriginalSourceType is the pre-edit code captured by the caller;
+            // Model.SourceType may already be renamed by the user, so only the
+            // captured value is valid fallback context for legacy callers.
             SourceRuleResponse result = IsCreate
                 ? await Api.CreateAsync(Model.ToRequest())
-                : await Api.UpdateAsync(OriginalSourceType ?? Model.SourceType, Model.ToUpdateRequest());
+                : RuleId.HasValue
+                    ? await Api.UpdateByIdAsync(RuleId.Value, OriginalSourceType ?? Model.SourceType, Model.ToUpdateRequest())
+                    : await Api.UpdateAsync(OriginalSourceType ?? Model.SourceType, Model.ToUpdateRequest());
             DialogService.Close(result);
         }
         catch (ApiException ex)

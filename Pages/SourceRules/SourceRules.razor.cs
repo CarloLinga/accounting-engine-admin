@@ -105,6 +105,10 @@ public partial class SourceRules : ComponentBase
             {
                 ["Model"] = model,
                 ["IsCreate"] = false,
+                // Stable row key for PUT-by-Id (renames edit Model.SourceType
+                // freely). OriginalSourceType is kept as fallback context for
+                // legacy PUT-by-sourceType callers / old backends.
+                ["RuleId"] = rule.Id,
                 ["OriginalSourceType"] = rule.SourceType
             },
             new DialogOptions { Width = "820px", Draggable = true, CloseDialogOnEsc = true });
@@ -151,7 +155,7 @@ public partial class SourceRules : ComponentBase
 
         try
         {
-            await SourceRulesApi.DeleteAsync(rule.SourceType);
+            await SourceRulesApi.DeleteByIdAsync(rule.Id, rule.SourceType);
             Notify(NotificationSeverity.Success, "Source rule deleted", rule.SourceType);
             await LoadAsync();
         }

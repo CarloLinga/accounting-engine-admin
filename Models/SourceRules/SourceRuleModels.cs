@@ -53,7 +53,7 @@ public record CreateSourceRuleRequest(
     bool IsManualEntryAllowed,
     IReadOnlyList<CreateSourceRuleLineRequest> RuleLines);
 
-/// <summary>Payload for PUT /api/SourceRules/{sourceType}.</summary>
+/// <summary>Payload for PUT /api/SourceRules/{id} (or legacy {sourceType}).</summary>
 public record UpdateSourceRuleRequest(
     string SourceType,
     string Description,
@@ -139,7 +139,11 @@ public static class RuleEntryTypeOptions
     ];
 }
 
-/// <summary>Standard amount types suggested by the rule-line autocomplete.</summary>
+/// <summary>
+/// Client-side mirror of the engine's well-known amount types. Serves as
+/// the offline fallback for GET /api/SourceRules/amount-types, which returns
+/// the distinct types referenced by rules merged with these defaults.
+/// </summary>
 public static class RuleAmountTypeOptions
 {
     public static List<string> AmountTypes { get; } =

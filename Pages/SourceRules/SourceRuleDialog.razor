@@ -57,7 +57,7 @@
                             </RadzenStack>
                             <RadzenStack Gap="0.25rem" Style="flex: 1 1 170px;">
                                 <RadzenLabel Text="Amount type" />
-                                <RadzenAutoComplete @bind-Value="line.AmountType" Data="@RuleAmountTypeOptions.AmountTypes" AllowClear="true" Placeholder="Type or select amount..." Style="width:100%" />
+                                <RadzenAutoComplete @bind-Value="line.AmountType" Data="@amountTypeOptions" AllowClear="true" Placeholder="Type or select amount..." Style="width:100%" />
                                 <ValidationMessage For="@(() => line.AmountType)" />
                             </RadzenStack>
                             <RadzenButton Icon="delete" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Danger" Click="@(() => RemoveLine(line))" Type="ButtonType.Button" />
