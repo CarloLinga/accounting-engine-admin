@@ -10,7 +10,7 @@ namespace AccountingEngineAdmin.Models.SourceRules;
 // with the backend (see AccountingEngine.Application.DTOs.SourceRuleDtos).
 // ----------------------------------------------------------------------------
 
-/// <summary>One amount type in a source rule line (e.g. TOTAL_AMOUNT).</summary>
+/// <summary>Standard amount types suggested by the source-rule editor.</summary>
 public enum RuleAmountType
 {
     TOTAL_AMOUNT,
@@ -33,7 +33,7 @@ public record SourceRuleLineResponse(
     Guid Id,
     string AccountCode,
     RuleEntryType EntryType,
-    RuleAmountType AmountType,
+    string AmountType,
     int Sequence,
     string? Description = null);
 
@@ -64,7 +64,7 @@ public record UpdateSourceRuleRequest(
 public record CreateSourceRuleLineRequest(
     string AccountCode,
     RuleEntryType EntryType,
-    RuleAmountType AmountType,
+    string AmountType,
     int Sequence);
 
 /// <summary>One editable posting-template row in the source rule dialog.</summary>
@@ -77,7 +77,7 @@ public sealed class SourceRuleLineFormModel
     public RuleEntryType? EntryType { get; set; }
 
     [Required(ErrorMessage = "Amount type is required.")]
-    public RuleAmountType? AmountType { get; set; }
+    public string? AmountType { get; set; }
 
     public int Sequence { get; set; }
 
@@ -124,7 +124,7 @@ public sealed class SourceRuleFormModel
                 .Select((l, i) => new CreateSourceRuleLineRequest(
                     l.AccountCode!.Trim(),
                     l.EntryType!.Value,
-                    l.AmountType!.Value,
+                    l.AmountType!.Trim(),
                     i + 1))
                 .ToList();
 }
@@ -139,19 +139,19 @@ public static class RuleEntryTypeOptions
     ];
 }
 
-/// <summary>Pre-built dropdown options for rule amount types.</summary>
+/// <summary>Standard amount types suggested by the rule-line autocomplete.</summary>
 public static class RuleAmountTypeOptions
 {
-    public static List<EnumOption<RuleAmountType>> AmountTypes { get; } =
+    public static List<string> AmountTypes { get; } =
     [
-        new(RuleAmountType.TOTAL_AMOUNT, "Total amount"),
-        new(RuleAmountType.BASE_AMOUNT, "Base amount"),
-        new(RuleAmountType.TAX_AMOUNT, "Tax amount"),
-        new(RuleAmountType.FREIGHT_AMOUNT, "Freight amount"),
-        new(RuleAmountType.DISCOUNT_AMOUNT, "Discount amount"),
-        new(RuleAmountType.NET_AMOUNT, "Net amount"),
-        new(RuleAmountType.CUSTOM, "Custom")
+        nameof(RuleAmountType.TOTAL_AMOUNT),
+        nameof(RuleAmountType.BASE_AMOUNT),
+        nameof(RuleAmountType.TAX_AMOUNT),
+        nameof(RuleAmountType.FREIGHT_AMOUNT),
+        nameof(RuleAmountType.DISCOUNT_AMOUNT),
+        nameof(RuleAmountType.NET_AMOUNT),
+        nameof(RuleAmountType.CUSTOM)
     ];
 
-    public static string For(RuleAmountType value) => value.ToString();
+    public static string For(string value) => value;
 }

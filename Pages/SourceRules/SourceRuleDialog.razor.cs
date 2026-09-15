@@ -62,7 +62,7 @@ public partial class SourceRuleDialog : ComponentBase
             EntryType = Model.RuleLines.Any(l => l.EntryType == RuleEntryType.Debit)
                 ? RuleEntryType.Credit
                 : RuleEntryType.Debit,
-            AmountType = RuleAmountType.TOTAL_AMOUNT
+            AmountType = nameof(RuleAmountType.TOTAL_AMOUNT)
         });
 
     private void RemoveLine(SourceRuleLineFormModel line) => Model.RuleLines.Remove(line);

@@ -30,7 +30,7 @@ public partial class SourceTransactionDialog : ComponentBase
     {
         if (Model.Amounts.Count == 0)
         {
-            Model.Amounts.Add(new SourceAmountFormModel { Key = RuleAmountType.TOTAL_AMOUNT.ToString() });
+            Model.Amounts.Add(new SourceAmountFormModel { Key = nameof(RuleAmountType.TOTAL_AMOUNT) });
         }
     }
 
@@ -44,13 +44,13 @@ public partial class SourceTransactionDialog : ComponentBase
         var rule = Rules.FirstOrDefault(r => r.SourceType == sourceType);
         if (rule is null)
         {
-            Model.Amounts.Add(new SourceAmountFormModel { Key = RuleAmountType.TOTAL_AMOUNT.ToString() });
+            Model.Amounts.Add(new SourceAmountFormModel { Key = nameof(RuleAmountType.TOTAL_AMOUNT) });
             return;
         }
 
         foreach (var amountType in rule.RuleLines.Select(l => l.AmountType).Distinct())
         {
-            Model.Amounts.Add(new SourceAmountFormModel { Key = amountType.ToString() });
+            Model.Amounts.Add(new SourceAmountFormModel { Key = amountType });
         }
     }
 
