@@ -46,10 +46,30 @@
     color: #d13438;
 }
 
+.gj-footer-number {
+    display: block;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+}
+
 .gj-lines-list,
 .source-tx-amounts-list {
     max-height: 320px;
     overflow-y: auto;
+}
+
+.gj-lines-grid {
+    max-height: 320px;
+}
+
+.gj-lines-grid .rz-data-grid-data td {
+    vertical-align: top;
+}
+
+.gj-amount-input input,
+.gj-amount-input .rz-inputtext {
+    font-variant-numeric: tabular-nums;
+    text-align: right;
 }
 
 .source-tx-hint {

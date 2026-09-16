@@ -30,8 +30,11 @@ public partial class JournalEntries : ComponentBase
     private DateTime? filterEnd;
     private string filterSourceType = string.Empty;
 
-    private string Amount(JournalEntryResponse entry) =>
-        (entry.JournalLines.Sum(l => l.Debit)).ToString("N2");
+    private static decimal TotalDebits(JournalEntryResponse entry) =>
+        entry.JournalLines.Sum(l => l.Debit);
+
+    private static decimal TotalCredits(JournalEntryResponse entry) =>
+        entry.JournalLines.Sum(l => l.Credit);
 
     protected override async Task OnInitializedAsync() => await LoadAsync();
 
@@ -76,7 +79,7 @@ public partial class JournalEntries : ComponentBase
         await DialogService.OpenAsync<JournalEntryDetailDialog>(
             $"Journal entry {entry.Reference}",
             new Dictionary<string, object?> { ["Entry"] = entry },
-            new DialogOptions { Width = "820px", Draggable = true, CloseDialogOnEsc = true });
+            new DialogOptions { Width = "1100px", Resizable = true, Draggable = true, CloseDialogOnEsc = true });
     }
 
     private async Task OpenGeneralJournalAsync()
@@ -85,12 +88,79 @@ public partial class JournalEntries : ComponentBase
         var result = await DialogService.OpenAsync<GeneralJournalDialog>(
             "Post General Journal",
             new Dictionary<string, object?> { ["Model"] = model },
-            new DialogOptions { Width = "820px", Draggable = true, CloseDialogOnEsc = true });
+            new DialogOptions { Width = "1100px", Resizable = true, Draggable = true, CloseDialogOnEsc = true });
 
         if (result is JournalEntryResponse posted)
         {
             Notify(NotificationSeverity.Success, "Journal entry posted", posted.Reference);
             await LoadAsync();
+        }
+    }
+
+    private async Task OpenEditAsync(JournalEntryResponse entry)
+    {
+        var model = new GeneralJournalFormModel
+        {
+            SourceType = entry.SourceType,
+            Reference = entry.Reference,
+            PostedOn = entry.PostedAt.UtcDateTime.Date,
+            Description = entry.Description
+        };
+
+        foreach (var line in entry.JournalLines.OrderBy(l => l.Sequence))
+        {
+            model.Lines.Add(new JournalLineFormModel
+            {
+                AccountCode = line.AccountCode,
+                Debit = line.Debit > 0 ? line.Debit : null,
+                Credit = line.Credit > 0 ? line.Credit : null,
+                Description = line.Description,
+                Sequence = line.Sequence
+            });
+        }
+
+        var result = await DialogService.OpenAsync<GeneralJournalDialog>(
+            $"Edit {entry.Reference}",
+            new Dictionary<string, object?>
+            {
+                ["Model"] = model,
+                ["IsCreate"] = false,
+                ["EntryId"] = entry.Id
+            },
+            new DialogOptions { Width = "1100px", Resizable = true, Draggable = true, CloseDialogOnEsc = true });
+
+        if (result is JournalEntryResponse updated)
+        {
+            Notify(NotificationSeverity.Success, "Journal entry updated", updated.Reference);
+            await LoadAsync();
+        }
+    }
+
+    private async Task DeleteAsync(JournalEntryResponse entry)
+    {
+        var confirmed = await DialogService.Confirm(
+            $"Delete journal entry {entry.Reference}? This cannot be undone.",
+            "Confirm delete",
+            new ConfirmOptions { OkButtonText = "Delete", CancelButtonText = "Cancel" });
+
+        if (confirmed != true)
+        {
+            return;
+        }
+
+        try
+        {
+            await JournalsApi.DeleteAsync(entry.Id);
+            Notify(NotificationSeverity.Success, "Journal entry deleted", entry.Reference);
+            await LoadAsync();
+        }
+        catch (ApiException ex)
+        {
+            Notify(NotificationSeverity.Error, "Delete failed", ex.Message);
+        }
+        catch (HttpRequestException)
+        {
+            Notify(NotificationSeverity.Error, "API unreachable", "Could not reach the Accounting Engine API.");
         }
     }
 

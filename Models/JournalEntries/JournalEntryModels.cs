@@ -5,8 +5,7 @@ namespace AccountingEngineAdmin.Models.JournalEntries;
 // -----------------------------------------------------------------------------
 // Client-side mirrors of the Accounting Engine API Journals contract
 // (/api/Journals). JSON: camelCase properties, enums as strings. Keep in sync
-// with the backend. Posted journal entries are immutable - there are no
-// update/delete endpoints (correct behavior for accounting).
+// with the backend.
 // -----------------------------------------------------------------------------
 
 /// <summary>One posting line of a journal entry as returned by the API.</summary>
@@ -38,6 +37,14 @@ public record JournalLineRequest(
 
 /// <summary>Payload for POST /api/Journals. At least two lines are required and total debits must equal total credits.</summary>
 public record PostGeneralJournalRequest(
+    string SourceType,
+    string Reference,
+    DateTimeOffset PostedAt,
+    string? Description,
+    IReadOnlyList<JournalLineRequest> Lines);
+
+/// <summary>Payload for PUT /api/Journals/{id}.</summary>
+public record UpdateJournalEntryRequest(
     string SourceType,
     string Reference,
     DateTimeOffset PostedAt,
@@ -94,6 +101,20 @@ public sealed class GeneralJournalFormModel
     public int FilledLines => Lines.Count(l => l.IsFilled);
 
     public PostGeneralJournalRequest ToRequest() => new(
+        SourceType!.Trim(),
+        Reference.Trim(),
+        new DateTimeOffset(PostedOn!.Value, TimeSpan.Zero),
+        string.IsNullOrWhiteSpace(Description) ? null : Description.Trim(),
+        Lines
+            .Select((line, index) => new JournalLineRequest(
+                line.AccountCode!.Trim(),
+                line.Debit ?? 0,
+                line.Credit ?? 0,
+                string.IsNullOrWhiteSpace(line.Description) ? null : line.Description.Trim(),
+                index + 1))
+            .ToList());
+
+    public UpdateJournalEntryRequest ToUpdateRequest() => new(
         SourceType!.Trim(),
         Reference.Trim(),
         new DateTimeOffset(PostedOn!.Value, TimeSpan.Zero),

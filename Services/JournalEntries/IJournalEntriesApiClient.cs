@@ -27,4 +27,10 @@ public interface IJournalEntriesApiClient
 
     /// <summary>POST /api/Journals/source (rule-driven posting from a source system).</summary>
     Task<JournalEntryResponse> PostSourceTransactionAsync(PostSourceTransactionRequest request, CancellationToken cancellationToken = default);
+
+    /// <summary>PUT /api/Journals/{id}</summary>
+    Task<JournalEntryResponse> UpdateAsync(Guid id, UpdateJournalEntryRequest request, CancellationToken cancellationToken = default);
+
+    /// <summary>DELETE /api/Journals/{id}</summary>
+    Task DeleteAsync(Guid id, CancellationToken cancellationToken = default);
 }

@@ -6,7 +6,7 @@
     <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween" Wrap="FlexWrap.Wrap" Gap="0.75rem">
         <div>
             <h1 class="page-title">Journal Entries</h1>
-            <p class="page-subtitle">Immutable postings from source systems and manual general journal entries.</p>
+            <p class="page-subtitle">Postings from source systems and manual general journal entries.</p>
         </div>
         <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" Wrap="FlexWrap.Wrap">
             <RadzenButton Text="Post General Journal" Icon="edit_note" Click="@OpenGeneralJournalAsync" ButtonStyle="ButtonStyle.Primary" />
@@ -55,7 +55,7 @@
         }
         else
         {
-            <RadzenDataGrid TItem="JournalEntryResponse" Data="@entries" AllowPaging="true" PageSize="15" AllowSorting="true" AllowFiltering="true">
+            <RadzenDataGrid TItem="JournalEntryResponse" Data="@entries" AllowPaging="true" PageSize="12" AllowSorting="true" AllowFiltering="true">
                 <Columns>
                     <RadzenDataGridColumn TItem="JournalEntryResponse" Property="PostedAt" Title="Posted" Width="150px" FormatString="{0:dd MMM yyyy HH:mm}" />
                     <RadzenDataGridColumn TItem="JournalEntryResponse" Property="Reference" Title="Reference" Width="180px">
@@ -77,11 +77,17 @@
                         <Template Context="entry">@entry.JournalLines.Count</Template>
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="JournalEntryResponse" Title="Total debit" Width="130px" Sortable="false" Filterable="false" TextAlign="TextAlign.Right">
-                        <Template Context="entry"><span class="journals-money">@Amount(entry)</span></Template>
+                        <Template Context="entry"><span class="journals-money">@TotalDebits(entry).ToString("N2")</span></Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="JournalEntryResponse" Title="Actions" Width="90px" Sortable="false" Filterable="false">
+                    <RadzenDataGridColumn TItem="JournalEntryResponse" Title="Total credit" Width="130px" Sortable="false" Filterable="false" TextAlign="TextAlign.Right">
+                        <Template Context="entry"><span class="journals-money">@TotalCredits(entry).ToString("N2")</span></Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="JournalEntryResponse" Title="Actions" Width="105px" Sortable="false" Filterable="false">
                         <Template Context="entry">
-                            <RadzenButton Icon="visibility" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Light" Click="@(() => OpenDetailAsync(entry))" />
+                            <RadzenStack Orientation="Orientation.Horizontal" Gap="0.25rem">
+                                <RadzenButton Icon="edit" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Light" Click="@(() => OpenEditAsync(entry))" title="Edit journal entry" />
+                                <RadzenButton Icon="delete" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Danger" Click="@(() => DeleteAsync(entry))" title="Delete journal entry" />
+                            </RadzenStack>
                         </Template>
                     </RadzenDataGridColumn>
                 </Columns>

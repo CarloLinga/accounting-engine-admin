@@ -16,6 +16,10 @@ public partial class GeneralJournalDialog : ComponentBase
 
     [Parameter] public GeneralJournalFormModel Model { get; set; } = new();
 
+    [Parameter] public bool IsCreate { get; set; } = true;
+
+    [Parameter] public Guid? EntryId { get; set; }
+
     private List<AccountResponse> accounts = [];
     private bool saving;
     private string? error;
@@ -56,7 +60,9 @@ public partial class GeneralJournalDialog : ComponentBase
 
         try
         {
-            var result = await Api.PostGeneralJournalAsync(Model.ToRequest());
+            var result = IsCreate
+                ? await Api.PostGeneralJournalAsync(Model.ToRequest())
+                : await Api.UpdateAsync(EntryId ?? throw new InvalidOperationException("An entry ID is required when editing."), Model.ToUpdateRequest());
             DialogService.Close(result);
         }
         catch (ApiException ex)

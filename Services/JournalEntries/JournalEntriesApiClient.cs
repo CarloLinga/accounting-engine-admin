@@ -59,4 +59,17 @@ public sealed class JournalEntriesApiClient : ApiClientBase, IJournalEntriesApiC
         using var response = await Http.PostAsJsonAsync("api/Journals/source", request, ApiJson.Options, cancellationToken);
         return await SendForValueAsync<JournalEntryResponse>(response, cancellationToken);
     }
+
+    public async Task<JournalEntryResponse> UpdateAsync(
+        Guid id, UpdateJournalEntryRequest request, CancellationToken cancellationToken = default)
+    {
+        using var response = await Http.PutAsJsonAsync($"api/Journals/{Escape(id.ToString())}", request, ApiJson.Options, cancellationToken);
+        return await SendForValueAsync<JournalEntryResponse>(response, cancellationToken);
+    }
+
+    public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        using var response = await Http.DeleteAsync($"api/Journals/{Escape(id.ToString())}", cancellationToken);
+        await EnsureSuccessAsync(response, cancellationToken);
+    }
 }
