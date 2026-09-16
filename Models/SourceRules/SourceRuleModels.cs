@@ -46,6 +46,14 @@ public record SourceRuleResponse(
     bool IsManualEntryAllowed,
     IReadOnlyList<SourceRuleLineResponse> RuleLines);
 
+public enum SourceRuleDialogOutcome
+{
+    Saved,
+    Deleted
+}
+
+public sealed record SourceRuleDialogResult(SourceRuleDialogOutcome Outcome, string SourceType, SourceRuleResponse? Rule = null);
+
 /// <summary>Payload for POST /api/SourceRules.</summary>
 public record CreateSourceRuleRequest(
     string SourceType,

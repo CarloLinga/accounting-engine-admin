@@ -25,6 +25,14 @@ public record AccountResponse(
     string? ParentAccountCode,
     int DisplayOrder);
 
+public enum AccountDialogOutcome
+{
+    Saved,
+    Deleted
+}
+
+public sealed record AccountDialogResult(AccountDialogOutcome Outcome, string Code, AccountResponse? Account = null);
+
 /// <summary>Payload for POST /api/accounts. Code and Type are immutable after creation.</summary>
 public record CreateAccountRequest(
     string Code,

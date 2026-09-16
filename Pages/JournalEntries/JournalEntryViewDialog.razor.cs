@@ -63,10 +63,8 @@ public partial class JournalEntryViewDialog : ComponentBase
             },
             new DialogOptions { Width = "1100px", Resizable = true, Draggable = true, CloseDialogOnEsc = true });
 
-        if (result is JournalDialogResult)
-        {
-            DialogService.Close(result);
-        }
+        // Closing the edit dialog, including Cancel, closes the entire view/edit workflow.
+        DialogService.Close(result);
     }
 
     private async Task DeleteAsync()

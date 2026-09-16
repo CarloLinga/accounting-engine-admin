@@ -4,6 +4,23 @@
     font-size: 0.85rem;
 }
 
+.source-rules-link {
+    padding: 0;
+    border: none;
+    background: none;
+    color: #0071c1;
+    font-weight: 600;
+    font-family: "Cascadia Code", Consolas, monospace;
+    font-size: 0.85rem;
+    text-align: left;
+    cursor: pointer;
+}
+
+.source-rules-link:hover,
+.source-rules-link:focus {
+    text-decoration: underline;
+}
+
 .source-rules-detail {
     display: block;
     opacity: 0.65;

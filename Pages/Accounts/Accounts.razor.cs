@@ -87,6 +87,25 @@ public partial class Accounts : ComponentBase, IDisposable
         }
     }
 
+    private async Task OpenViewAsync(AccountResponse account)
+    {
+        var result = await DialogService.OpenAsync<AccountViewDialog>(
+            $"Account {account.Code}",
+            new Dictionary<string, object?> { ["Account"] = account },
+            new DialogOptions { Width = "760px", Draggable = true, CloseDialogOnEsc = true });
+
+        if (result is not AccountDialogResult dialogResult)
+        {
+            return;
+        }
+
+        Notify(
+            NotificationSeverity.Success,
+            dialogResult.Outcome == AccountDialogOutcome.Deleted ? "Account deleted" : "Account updated",
+            dialogResult.Code);
+        await LoadAsync();
+    }
+
     private async Task OpenEditAsync(AccountResponse a)
     {
         var model = new AccountFormModel

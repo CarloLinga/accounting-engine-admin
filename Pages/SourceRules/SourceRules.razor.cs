@@ -79,6 +79,25 @@ public partial class SourceRules : ComponentBase
         }
     }
 
+    private async Task OpenViewAsync(SourceRuleResponse rule)
+    {
+        var result = await DialogService.OpenAsync<SourceRuleViewDialog>(
+            $"Source rule {rule.SourceType}",
+            new Dictionary<string, object?> { ["Rule"] = rule },
+            new DialogOptions { Width = "820px", Draggable = true, CloseDialogOnEsc = true });
+
+        if (result is not SourceRuleDialogResult dialogResult)
+        {
+            return;
+        }
+
+        Notify(
+            NotificationSeverity.Success,
+            dialogResult.Outcome == SourceRuleDialogOutcome.Deleted ? "Source rule deleted" : "Source rule updated",
+            dialogResult.SourceType);
+        await LoadAsync();
+    }
+
     private async Task OpenEditAsync(SourceRuleResponse rule)
     {
         var model = new SourceRuleFormModel

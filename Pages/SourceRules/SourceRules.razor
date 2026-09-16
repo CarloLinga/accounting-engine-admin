@@ -35,23 +35,24 @@
     <RadzenCard class="source-rules-grid-card">
         @if (isLoading)
         {
-            <p><em>Loading source rules...</em></p>
+            <p><em>Loading Source Rules...</em></p>
         }
         else if (VisibleRulesCount == 0 && string.IsNullOrEmpty(loadError))
         {
-            <p>No source rules found. Adjust the filters or create the first rule.</p>
+            <p>No Source Rules found. Adjust the filters or create the first rule.</p>
         }
         else
         {
-            <RadzenDataGrid TItem="SourceRuleResponse" Data="@visibleRules" AllowPaging="true" PageSize="15" AllowSorting="true" AllowFiltering="true" class="source-rules-grid">
+            <RadzenDataGrid TItem="SourceRuleResponse" Data="@visibleRules" class="source-rules-grid"
+                    AllowPaging="true" PageSize="12" AllowSorting="true" AllowFiltering="true" AllowColumnResize="true">
                 <Columns>
-                    <RadzenDataGridColumn TItem="SourceRuleResponse" Property="SourceType" Title="Source type" Width="200px">
+                    <RadzenDataGridColumn TItem="SourceRuleResponse" Property="SourceType" Title="Source Type" Width="200px">
                         <Template Context="rule">
-                            <span class="source-type">@rule.SourceType</span>
+                            <button type="button" class="source-rules-link" @onclick="() => OpenViewAsync(rule)" title="View source rule">@rule.SourceType</button>
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="SourceRuleResponse" Property="Description" Title="Description" />
-                    <RadzenDataGridColumn TItem="SourceRuleResponse" Title="Rule lines" Width="170px" Sortable="false" Filterable="false">
+                    <RadzenDataGridColumn TItem="SourceRuleResponse" Property="Description" Title="Description" Width="300px" />
+                    <RadzenDataGridColumn TItem="SourceRuleResponse" Title="Rule lines" Width="300px" Sortable="false" Filterable="false">
                         <Template Context="rule">
                             <div>@LineSummary(rule)</div>
                             <small class="source-rules-detail" title="@LineDetails(rule)">@LineDetails(rule)</small>
@@ -76,9 +77,7 @@
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="SourceRuleResponse" Title="Actions" Width="150px" Sortable="false" Filterable="false">
                         <Template Context="rule">
-                            <RadzenButton Icon="edit" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Light" Click="@(() => OpenEditAsync(rule))" />
                             <RadzenButton Icon="@(rule.IsActive ? "toggle_on" : "toggle_off")" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Info" Click="@(() => ToggleActiveAsync(rule))" />
-                            <RadzenButton Icon="delete" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Danger" Click="@(() => DeleteAsync(rule))" />
                         </Template>
                     </RadzenDataGridColumn>
                 </Columns>

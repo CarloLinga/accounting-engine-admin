@@ -52,7 +52,7 @@
                     <RadzenDataGridColumn TItem="AccountResponse" Property="Code" Title="Code" Width="110px" />
                     <RadzenDataGridColumn TItem="AccountResponse" Property="Name" Title="Name">
                         <Template Context="a">
-                            <div>@a.Name</div>
+                            <button type="button" class="accounts-link" @onclick="() => OpenViewAsync(a)" title="View account">@a.Name</button>
                             @if (!string.IsNullOrEmpty(a.ParentAccountCode))
                             {
                                 <small class="accounts-parent">Parent: @a.ParentAccountCode</small>
@@ -80,9 +80,7 @@
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="AccountResponse" Title="Actions" Width="150px" Sortable="false" Filterable="false">
                         <Template Context="a">
-                            <RadzenButton Icon="edit" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Light" Click="@(() => OpenEditAsync(a))" />
                             <RadzenButton Icon="@(a.IsActive ? "toggle_on" : "toggle_off")" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Info" Click="@(() => ToggleActiveAsync(a))" />
-                            <RadzenButton Icon="delete" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Danger" Click="@(() => DeleteAsync(a))" />
                         </Template>
                     </RadzenDataGridColumn>
                 </Columns>

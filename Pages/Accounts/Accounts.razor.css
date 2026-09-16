@@ -12,6 +12,20 @@
     opacity: 0.65;
 }
 
+.accounts-link {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #0071c1;
+    cursor: pointer;
+    text-align: left;
+}
+
+.accounts-link:hover,
+.accounts-link:focus {
+    text-decoration: underline;
+}
+
 .accounts-error {
     border-left: 4px solid #d13438;
 }

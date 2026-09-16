@@ -34,6 +34,8 @@ public partial class SourceRuleDialog : ComponentBase
     /// </summary>
     [Parameter] public string? OriginalSourceType { get; set; }
 
+    [Parameter] public IReadOnlyList<AccountResponse>? Accounts { get; set; }
+
     private List<AccountResponse> accounts = [];
 
     /// <summary>
@@ -51,7 +53,9 @@ public partial class SourceRuleDialog : ComponentBase
     {
         try
         {
-            accounts = (await AccountsApi.SearchAsync(null, false)).ToList();
+            accounts = Accounts is { Count: > 0 }
+                ? Accounts.ToList()
+                : (await AccountsApi.SearchAsync(null, false)).ToList();
         }
         catch (ApiException)
         {
@@ -89,7 +93,7 @@ public partial class SourceRuleDialog : ComponentBase
     }
 
     private IEnumerable<AccountResponse> postableAccounts =>
-        accounts.Where(a => a.IsPostable && a.IsActive);
+        accounts.Where(a => (a.IsPostable && a.IsActive) || Model.RuleLines.Any(l => string.Equals(l.AccountCode, a.Code, StringComparison.OrdinalIgnoreCase)));
 
     private void AddLine() =>
         Model.RuleLines.Add(new SourceRuleLineFormModel

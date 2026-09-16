@@ -1,0 +1,39 @@
+<RadzenStack Gap="0.75rem" class="source-rule-detail">
+    @if (!string.IsNullOrEmpty(error))
+    {
+        <div class="dialog-error">@error</div>
+    }
+
+    <RadzenStack Orientation="Orientation.Horizontal" Gap="1.25rem" Wrap="FlexWrap.Wrap">
+        <div><RadzenLabel Text="Source type" /><div class="journal-detail-value">@Rule.SourceType</div></div>
+        <div><RadzenLabel Text="Description" /><div class="journal-detail-value">@Rule.Description</div></div>
+        <div><RadzenLabel Text="Status" /><div class="journal-detail-value">@(Rule.IsActive ? "Active" : "Inactive")</div></div>
+    </RadzenStack>
+
+    <RadzenStack Orientation="Orientation.Horizontal" Gap="1rem" Wrap="FlexWrap.Wrap">
+        <span>Manual entry: <strong>@(Rule.IsManualEntryAllowed ? "Allowed" : "Source only")</strong></span>
+        <span>Rule lines: <strong>@Rule.RuleLines.Count</strong></span>
+    </RadzenStack>
+
+    @if (Rule.IsManualEntryAllowed)
+    {
+        <p class="source-rule-lines-empty">Manual categories post no template lines.</p>
+    }
+    else
+    {
+        <RadzenDataGrid TItem="SourceRuleLineResponse" Data="@Rule.RuleLines" AllowPaging="false" AllowSorting="false" AllowFiltering="false">
+            <Columns>
+                <RadzenDataGridColumn TItem="SourceRuleLineResponse" Property="Sequence" Title="#" Width="55px" />
+                <RadzenDataGridColumn TItem="SourceRuleLineResponse" Property="AccountCode" Title="Account" Width="140px" />
+                <RadzenDataGridColumn TItem="SourceRuleLineResponse" Property="EntryType" Title="Posting side" Width="130px" />
+                <RadzenDataGridColumn TItem="SourceRuleLineResponse" Property="AmountType" Title="Amount type" />
+            </Columns>
+        </RadzenDataGrid>
+    }
+
+    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="0.5rem">
+        <RadzenButton Text="Delete" Icon="delete" ButtonStyle="ButtonStyle.Danger" Click="@DeleteAsync" Disabled="@busy" ButtonType="ButtonType.Button" />
+        <RadzenButton Text="Edit" Icon="edit" ButtonStyle="ButtonStyle.Primary" Click="@EditAsync" Disabled="@busy" ButtonType="ButtonType.Button" />
+        <RadzenButton Text="Close" ButtonStyle="ButtonStyle.Light" Click="@Close" Disabled="@busy" ButtonType="ButtonType.Button" />
+    </RadzenStack>
+</RadzenStack>

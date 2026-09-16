@@ -1,0 +1,36 @@
+<RadzenStack Gap="0.75rem" class="account-detail">
+    @if (!string.IsNullOrEmpty(error))
+    {
+        <div class="dialog-error">@error</div>
+    }
+
+    <RadzenStack Orientation="Orientation.Horizontal" Gap="1.25rem" Wrap="FlexWrap.Wrap">
+        <div><RadzenLabel Text="Code" /><div class="journal-detail-value">@Account.Code</div></div>
+        <div><RadzenLabel Text="Name" /><div class="journal-detail-value">@Account.Name</div></div>
+        <div><RadzenLabel Text="Type" /><div class="journal-detail-value">@AccountLabels.For(Account.Type)</div></div>
+    </RadzenStack>
+
+    <RadzenStack Orientation="Orientation.Horizontal" Gap="1.25rem" Wrap="FlexWrap.Wrap">
+        <div><RadzenLabel Text="Statement" /><div class="journal-detail-value">@AccountLabels.For(Account.Statement)</div></div>
+        <div><RadzenLabel Text="Statement class" /><div class="journal-detail-value">@StatementClass</div></div>
+        <div><RadzenLabel Text="Cash flow" /><div class="journal-detail-value">@AccountLabels.For(Account.CashFlowActivity)</div></div>
+    </RadzenStack>
+
+    <RadzenStack Orientation="Orientation.Horizontal" Gap="1.25rem" Wrap="FlexWrap.Wrap">
+        <div><RadzenLabel Text="Parent account" /><div class="journal-detail-value">@(Account.ParentAccountCode ?? "-")</div></div>
+        <div><RadzenLabel Text="Display order" /><div class="journal-detail-value">@Account.DisplayOrder</div></div>
+        <div><RadzenLabel Text="Status" /><div class="journal-detail-value">@(Account.IsActive ? "Active" : "Inactive")</div></div>
+    </RadzenStack>
+
+    <RadzenStack Orientation="Orientation.Horizontal" Gap="1rem" Wrap="FlexWrap.Wrap">
+        <span>Cash equivalent: <strong>@(Account.IsCashEquivalent ? "Yes" : "No")</strong></span>
+        <span>Contra account: <strong>@(Account.IsContra ? "Yes" : "No")</strong></span>
+        <span>Postable: <strong>@(Account.IsPostable ? "Yes" : "No")</strong></span>
+    </RadzenStack>
+
+    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="0.5rem">
+        <RadzenButton Text="Delete" Icon="delete" ButtonStyle="ButtonStyle.Danger" Click="@DeleteAsync" Disabled="@busy" ButtonType="ButtonType.Button" />
+        <RadzenButton Text="Edit" Icon="edit" ButtonStyle="ButtonStyle.Primary" Click="@EditAsync" Disabled="@busy" ButtonType="ButtonType.Button" />
+        <RadzenButton Text="Close" ButtonStyle="ButtonStyle.Light" Click="@Close" Disabled="@busy" ButtonType="ButtonType.Button" />
+    </RadzenStack>
+</RadzenStack>
