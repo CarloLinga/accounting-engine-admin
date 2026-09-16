@@ -9,7 +9,7 @@ The app is a standalone client-side WebAssembly application. The API is deployed
 - Dashboard with API status and accounting summary information
 - Chart of Accounts management, including search, filtering, create/edit, activation, and deletion
 - Source rule management
-- Journal entry list and general journal workflows
+- Journal entry list with view, edit, and delete of existing journals, plus general journal posting
 - Trial balance reporting
 - General ledger reporting by account
 - Income statement, balance sheet, and cash flow views

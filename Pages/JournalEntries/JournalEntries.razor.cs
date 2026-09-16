@@ -74,93 +74,53 @@ public partial class JournalEntries : ComponentBase
         }
     }
 
-    private async Task OpenDetailAsync(JournalEntryResponse entry)
+    /// <summary>Shared dialog options for the journal dialogs opened from this page.</summary>
+    private static DialogOptions JournalDialogOptions => new()
     {
-        await DialogService.OpenAsync<JournalEntryDetailDialog>(
+        Width = "1100px",
+        Resizable = true,
+        Draggable = true,
+        CloseDialogOnEsc = true
+    };
+
+    /// <summary>Opens the dedicated read-only dialog for an existing entry.</summary>
+    private async Task OpenJournalAsync(JournalEntryResponse entry)
+    {
+        var result = await DialogService.OpenAsync<JournalEntryViewDialog>(
             $"Journal entry {entry.Reference}",
-            new Dictionary<string, object?> { ["Entry"] = entry },
-            new DialogOptions { Width = "1100px", Resizable = true, Draggable = true, CloseDialogOnEsc = true });
-    }
-
-    private async Task OpenGeneralJournalAsync()
-    {
-        var model = new GeneralJournalFormModel();
-        var result = await DialogService.OpenAsync<GeneralJournalDialog>(
-            "Post General Journal",
-            new Dictionary<string, object?> { ["Model"] = model },
-            new DialogOptions { Width = "1100px", Resizable = true, Draggable = true, CloseDialogOnEsc = true });
-
-        if (result is JournalEntryResponse posted)
-        {
-            Notify(NotificationSeverity.Success, "Journal entry posted", posted.Reference);
-            await LoadAsync();
-        }
-    }
-
-    private async Task OpenEditAsync(JournalEntryResponse entry)
-    {
-        var model = new GeneralJournalFormModel
-        {
-            SourceType = entry.SourceType,
-            Reference = entry.Reference,
-            PostedOn = entry.PostedAt.UtcDateTime.Date,
-            Description = entry.Description
-        };
-
-        foreach (var line in entry.JournalLines.OrderBy(l => l.Sequence))
-        {
-            model.Lines.Add(new JournalLineFormModel
-            {
-                AccountCode = line.AccountCode,
-                Debit = line.Debit > 0 ? line.Debit : null,
-                Credit = line.Credit > 0 ? line.Credit : null,
-                Description = line.Description,
-                Sequence = line.Sequence
-            });
-        }
-
-        var result = await DialogService.OpenAsync<GeneralJournalDialog>(
-            $"Edit {entry.Reference}",
             new Dictionary<string, object?>
             {
-                ["Model"] = model,
-                ["IsCreate"] = false,
-                ["EntryId"] = entry.Id
+                ["Entry"] = entry
             },
-            new DialogOptions { Width = "1100px", Resizable = true, Draggable = true, CloseDialogOnEsc = true });
+            JournalDialogOptions);
 
-        if (result is JournalEntryResponse updated)
-        {
-            Notify(NotificationSeverity.Success, "Journal entry updated", updated.Reference);
-            await LoadAsync();
-        }
-    }
-
-    private async Task DeleteAsync(JournalEntryResponse entry)
-    {
-        var confirmed = await DialogService.Confirm(
-            $"Delete journal entry {entry.Reference}? This cannot be undone.",
-            "Confirm delete",
-            new ConfirmOptions { OkButtonText = "Delete", CancelButtonText = "Cancel" });
-
-        if (confirmed != true)
+        if (result is not JournalDialogResult dialogResult)
         {
             return;
         }
 
-        try
+        Notify(
+            NotificationSeverity.Success,
+            dialogResult.Outcome == JournalDialogOutcome.Deleted ? "Journal entry deleted" : "Journal entry updated",
+            dialogResult.Reference);
+        await LoadAsync();
+    }
+
+    private async Task OpenGeneralJournalAsync()
+    {
+        var result = await DialogService.OpenAsync<JournalEntryEditDialog>(
+            "Post General Journal",
+            new Dictionary<string, object?>
+            {
+                ["Model"] = new GeneralJournalFormModel(),
+                ["IsCreate"] = true
+            },
+            JournalDialogOptions);
+
+        if (result is JournalDialogResult { Outcome: JournalDialogOutcome.Saved } saved)
         {
-            await JournalsApi.DeleteAsync(entry.Id);
-            Notify(NotificationSeverity.Success, "Journal entry deleted", entry.Reference);
+            Notify(NotificationSeverity.Success, "Journal entry posted", saved.Reference);
             await LoadAsync();
-        }
-        catch (ApiException ex)
-        {
-            Notify(NotificationSeverity.Error, "Delete failed", ex.Message);
-        }
-        catch (HttpRequestException)
-        {
-            Notify(NotificationSeverity.Error, "API unreachable", "Could not reach the Accounting Engine API.");
         }
     }
 

@@ -57,12 +57,12 @@
         {
             <RadzenDataGrid TItem="JournalEntryResponse" Data="@entries" AllowPaging="true" PageSize="12" AllowSorting="true" AllowFiltering="true">
                 <Columns>
-                    <RadzenDataGridColumn TItem="JournalEntryResponse" Property="PostedAt" Title="Posted" Width="150px" FormatString="{0:dd MMM yyyy HH:mm}" />
-                    <RadzenDataGridColumn TItem="JournalEntryResponse" Property="Reference" Title="Reference" Width="180px">
+                    <RadzenDataGridColumn TItem="JournalEntryResponse" Property="Reference" Title="Reference" Width="190px">
                         <Template Context="entry">
-                            <span class="journals-reference">@entry.Reference</span>
+                            <button type="button" class="journals-link" @onclick="() => OpenJournalAsync(entry)" title="View journal entry">@entry.Reference</button>
                         </Template>
                     </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="JournalEntryResponse" Property="PostedAt" Title="Posted" Width="120px" FormatString="{0:dd MMM yyyy}" />
                     <RadzenDataGridColumn TItem="JournalEntryResponse" Property="SourceType" Title="Source type" Width="180px">
                         <Template Context="entry">
                             <span class="journals-source">@entry.SourceType</span>
@@ -81,14 +81,6 @@
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="JournalEntryResponse" Title="Total credit" Width="130px" Sortable="false" Filterable="false" TextAlign="TextAlign.Right">
                         <Template Context="entry"><span class="journals-money">@TotalCredits(entry).ToString("N2")</span></Template>
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="JournalEntryResponse" Title="Actions" Width="105px" Sortable="false" Filterable="false">
-                        <Template Context="entry">
-                            <RadzenStack Orientation="Orientation.Horizontal" Gap="0.25rem">
-                                <RadzenButton Icon="edit" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Light" Click="@(() => OpenEditAsync(entry))" title="Edit journal entry" />
-                                <RadzenButton Icon="delete" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Danger" Click="@(() => DeleteAsync(entry))" title="Delete journal entry" />
-                            </RadzenStack>
-                        </Template>
                     </RadzenDataGridColumn>
                 </Columns>
             </RadzenDataGrid>

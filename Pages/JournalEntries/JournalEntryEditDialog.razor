@@ -32,13 +32,13 @@
         <RadzenStack Gap="0.5rem" class="gj-lines">
             <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween">
                 <RadzenLabel Text="Journal lines" />
-                <RadzenButton Text="Add line" Icon="add" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Secondary" Click="@AddLine" Type="ButtonType.Button" />
+                <RadzenButton Text="Add line" Icon="add" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Secondary" Click="@AddLine" ButtonType="ButtonType.Button" />
             </RadzenStack>
 
             <RadzenDataGrid TItem="JournalLineFormModel" Data="@Model.Lines" AllowPaging="false" AllowSorting="false" AllowFiltering="false" AllowColumnResize="true" class="gj-lines-grid">
                 <Columns>
                     <RadzenDataGridColumn TItem="JournalLineFormModel" Title="#" Width="55px" TextAlign="TextAlign.Center">
-                        <Template Context="line">@(Model.Lines.IndexOf(line) + 1)</Template>
+                        <Template Context="line">@LineNumber(line)</Template>
                         <FooterTemplate>Totals</FooterTemplate>
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="JournalLineFormModel" Title="Account" Width="240px">
@@ -64,14 +64,10 @@
                         <FooterTemplate><span class="gj-footer-number">@Model.TotalCredits.ToString("N2")</span></FooterTemplate>
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="JournalLineFormModel" Title="Description" MinWidth="180px">
-                        <Template Context="line">
-                            <RadzenTextBox @bind-Value="line.Description" Style="width:100%" />
-                        </Template>
+                        <Template Context="line"><RadzenTextBox @bind-Value="line.Description" Style="width:100%" /></Template>
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="JournalLineFormModel" Title="" Width="58px" Sortable="false" Filterable="false" TextAlign="TextAlign.Center">
-                        <Template Context="line">
-                            <RadzenButton Icon="delete" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Danger" Click="@(() => RemoveLine(line))" Type="ButtonType.Button" title="Remove line" />
-                        </Template>
+                        <Template Context="line"><RadzenButton Icon="delete" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Danger" Click="@(() => RemoveLine(line))" ButtonType="ButtonType.Button" title="Remove line" /></Template>
                     </RadzenDataGridColumn>
                 </Columns>
             </RadzenDataGrid>
@@ -83,7 +79,7 @@
         }
 
         <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="0.5rem" Style="margin-top: 0.5rem;">
-            <RadzenButton Text="Cancel" ButtonStyle="ButtonStyle.Light" Click="@Cancel" Disabled="@saving" />
+            <RadzenButton Text="Cancel" ButtonStyle="ButtonStyle.Light" Click="@Cancel" Disabled="@saving" ButtonType="ButtonType.Button" />
             <RadzenButton Text="@(saving ? "Saving..." : (IsCreate ? "Post entry" : "Save changes"))" ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Disabled="@saving" Icon="check" />
         </RadzenStack>
     </RadzenStack>

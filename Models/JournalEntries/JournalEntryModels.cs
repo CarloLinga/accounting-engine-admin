@@ -100,6 +100,36 @@ public sealed class GeneralJournalFormModel
     public bool IsBalanced => TotalDebits == TotalCredits;
     public int FilledLines => Lines.Count(l => l.IsFilled);
 
+    /// <summary>Creates a form model pre-filled from an existing entry (used to view or edit it).</summary>
+    public static GeneralJournalFormModel FromEntry(JournalEntryResponse entry)
+    {
+        var model = new GeneralJournalFormModel();
+        model.LoadFrom(entry);
+        return model;
+    }
+
+    /// <summary>Replaces the form values with those of an existing entry.</summary>
+    public void LoadFrom(JournalEntryResponse entry)
+    {
+        SourceType = entry.SourceType;
+        Reference = entry.Reference;
+        PostedOn = entry.PostedAt.UtcDateTime.Date;
+        Description = entry.Description;
+        Lines.Clear();
+
+        foreach (var line in entry.JournalLines.OrderBy(l => l.Sequence))
+        {
+            Lines.Add(new JournalLineFormModel
+            {
+                AccountCode = line.AccountCode,
+                Debit = line.Debit > 0 ? line.Debit : null,
+                Credit = line.Credit > 0 ? line.Credit : null,
+                Description = line.Description,
+                Sequence = line.Sequence
+            });
+        }
+    }
+
     public PostGeneralJournalRequest ToRequest() => new(
         SourceType!.Trim(),
         Reference.Trim(),
@@ -180,3 +210,33 @@ public record PostSourceTransactionRequest(
     DateTimeOffset PostedAt,
     string? Description,
     IReadOnlyDictionary<string, decimal> Amounts);
+
+// -----------------------------------------------------------------------------
+// Dialog support for the journals page.
+// -----------------------------------------------------------------------------
+
+/// <summary>How the journal dialog is presented to the user.</summary>
+public enum JournalDialogMode
+{
+    /// <summary>Post a new general journal entry.</summary>
+    Create,
+
+    /// <summary>Read-only view of an existing entry; the user can switch to Edit or Delete.</summary>
+    View,
+
+    /// <summary>Edit an existing entry with the fields enabled.</summary>
+    Edit
+}
+
+/// <summary>What the user did in the journal dialog.</summary>
+public enum JournalDialogOutcome
+{
+    /// <summary>The entry was created or updated.</summary>
+    Saved,
+
+    /// <summary>The entry was deleted after confirmation.</summary>
+    Deleted
+}
+
+/// <summary>Result the journal dialog reports back to the journals list.</summary>
+public sealed record JournalDialogResult(JournalDialogOutcome Outcome, string Reference);

@@ -160,30 +160,6 @@ code {
     color: #b71c1c;
 }
 
-.journals-reference {
-    font-weight: 600;
-    font-family: "Cascadia Code", Consolas, monospace;
-    font-size: 0.85rem;
-}
-
-.journals-source {
-    font-family: "Cascadia Code", Consolas, monospace;
-    font-size: 0.8rem;
-    opacity: 0.85;
-}
-
-.journal-detail-value {
-    margin-top: 0.15rem;
-}
-
-.journal-detail-lines {
-    margin-top: 0.5rem;
-}
-
-.journal-detail-totals {
-    font-variant-numeric: tabular-nums;
-}
-
 .gj-lines-list {
     max-height: 320px;
     overflow-y: auto;
@@ -196,6 +172,26 @@ code {
 
 .gj-totals.is-unbalanced {
     color: #d13438;
+}
+
+.gj-footer-number {
+    display: block;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+}
+
+.gj-lines-grid {
+    max-height: 320px;
+}
+
+.gj-lines-grid .rz-data-grid-data td {
+    vertical-align: top;
+}
+
+.gj-amount-input input,
+.gj-amount-input .rz-inputtext {
+    font-variant-numeric: tabular-nums;
+    text-align: right;
 }
 
 .source-tx-amounts-list {
