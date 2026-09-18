@@ -1,19 +1,24 @@
 <RadzenStack Gap="0.4rem" class="stk-block">
-    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" class="stk-block-head">
+    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center" class="fs-section-head">
         <h3>@Section.Title</h3>
-        <strong>@ReportFormats.MoneySigned(Section.Subtotal)</strong>
+        <strong class="stk-amount">@ReportFormats.MoneySigned(Section.Subtotal)</strong>
     </RadzenStack>
 
-    @foreach (var row in rows)
-    {
-        var amountClass = SectionBlock.AmountCss(row.Line);
-        var cssClass = $"stk-row {amountClass} stk-indent-{row.Indent}";
-        <div class="@cssClass">
-            <span>
-                <span class="stk-code">@row.Line.AccountCode</span>
-                @row.Line.AccountName
-            </span>
-            <span class="stk-amount">@ReportFormats.MoneySigned(row.Line.Amount)</span>
-        </div>
-    }
+    <RadzenDataGrid TItem="SectionRow" Data="@rows" AllowPaging="false" AllowSorting="false" AllowFiltering="false" class="fs-section-grid">
+        <Columns>
+            <RadzenDataGridColumn TItem="SectionRow" Title="Account" Width="70%">
+                <Template Context="row">
+                    <span class="@AccountCellCss(row)" @onclick="() => OpenLedger(row.Line.AccountCode)" title="View general ledger">
+                        <span class="stk-code">@row.Line.AccountCode</span>
+                        <span class="stk-name">@row.Line.AccountName</span>
+                    </span>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="SectionRow" Title="Amount" Width="30%" TextAlign="TextAlign.Right">
+                <Template Context="row">
+                    <span class="stk-amount @AmountCss(row.Line)">@ReportFormats.MoneySigned(row.Line.Amount)</span>
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
 </RadzenStack>

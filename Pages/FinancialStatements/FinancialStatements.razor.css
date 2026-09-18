@@ -62,42 +62,10 @@
     font-variant-numeric: tabular-nums;
 }
 
-.statements-tabs ::deep .stk-block-head {
-    margin-top: 0.35rem;
-}
+/* -------------------------------------------------------------------------
+   Section blocks (heading + account DataGrid) are rendered by the shared
+   SectionBlock / CashFlowSectionBlock components and are styled globally in
+   wwwroot/css/app.css (.fs-section-*, .fs-indent-*, .stk-*): those rules must
+   reach inside Radzen components, which page-scoped CSS cannot do reliably.
+   ------------------------------------------------------------------------- */
 
-.statements-tabs ::deep .stk-block-head h3 {
-    margin: 0;
-    font-size: 0.95rem;
-}
-
-.statements-tabs ::deep .stk-row {
-    font-variant-numeric: tabular-nums;
-    padding: 0.1rem 0;
-}
-
-.statements-tabs ::deep .stk-row.is-header {
-    font-weight: 700;
-}
-
-.statements-tabs ::deep .stk-row.is-contra {
-    opacity: 0.75;
-    font-style: italic;
-}
-
-.statements-tabs ::deep .stk-code {
-    display: inline-block;
-    width: 3.5rem;
-    opacity: 0.65;
-    font-family: "Cascadia Code", Consolas, monospace;
-    font-size: 0.8rem;
-}
-
-.statements-tabs ::deep .stk-amount {
-    white-space: nowrap;
-}
-
-.statements-tabs ::deep .stk-indent-0 { padding-left: 0; }
-.statements-tabs ::deep .stk-indent-1 { padding-left: 0.9rem; }
-.statements-tabs ::deep .stk-indent-2 { padding-left: 1.8rem; }
-.statements-tabs ::deep .stk-indent-3 { padding-left: 2.7rem; }

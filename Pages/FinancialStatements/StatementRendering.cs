@@ -27,6 +27,15 @@ public static class StatementRendering
         return rows;
     }
 
+    /// <summary>
+    /// True when the section has at least one row the grid will display, i.e. an
+    /// account with a non-zero amount. Derived from <see cref="SectionRows"/> and
+    /// the same predicate the section grids filter on, so a section is hidden
+    /// exactly when its grid would render empty (no "No records found" message).
+    /// </summary>
+    public static bool HasRows(StatementSection section) =>
+        SectionRows(section).Any(r => r.Line.Amount != 0);
+
     private static void Walk(
         ILookup<string?, StatementLine> byParent,
         StatementLine line,

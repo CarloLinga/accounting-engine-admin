@@ -1,19 +1,27 @@
-<RadzenStack Gap="0.4rem" class="section-block">
-    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" class="section-block-head">
+<RadzenStack Gap="0.4rem" class="stk-block">
+    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center" class="fs-section-head">
         <h3>@Section.Title</h3>
-        <strong>@ReportFormats.MoneySigned(Section.Subtotal)</strong>
+        <strong class="stk-amount">@ReportFormats.MoneySigned(Section.Subtotal)</strong>
     </RadzenStack>
 
-    @foreach (var row in rows)
-    {
-        var padding = $"padding-left: {row.Indent * 0.9}rem;";
-        var cssClass = row.Adjustment.Amount < 0 ? "is-negative" : string.Empty;
-        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" class="@cssClass" Style="@padding">
-            <span>
-                <span class="section-block-code">@row.Adjustment.AccountCode</span>
-                @row.Adjustment.Label
-            </span>
-            <span class="section-block-amount">@ReportFormats.MoneySigned(row.Adjustment.Amount)</span>
-        </RadzenStack>
-    }
+    <RadzenDataGrid TItem="CashFlowRow" Data="@rows" AllowPaging="false" AllowSorting="false" AllowFiltering="false" class="fs-section-grid">
+        <Columns>
+            <RadzenDataGridColumn TItem="CashFlowRow" Title="Item" Width="70%">
+                <Template Context="row">
+                    <span class="@ItemCellCss(row)" @onclick="() => OpenLedger(row.Adjustment.AccountCode)">
+                        @if (!string.IsNullOrEmpty(row.Adjustment.AccountCode))
+                        {
+                            <span class="stk-code">@row.Adjustment.AccountCode</span>
+                        }
+                        <span class="stk-name">@row.Adjustment.Label</span>
+                    </span>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="CashFlowRow" Title="Amount" Width="30%" TextAlign="TextAlign.Right">
+                <Template Context="row">
+                    <span class="stk-amount @CashFlowRendering.AmountCss(row.Adjustment)">@ReportFormats.MoneySigned(row.Adjustment.Amount)</span>
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
 </RadzenStack>

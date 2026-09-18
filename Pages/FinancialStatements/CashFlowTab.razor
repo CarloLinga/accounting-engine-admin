@@ -17,11 +17,20 @@
                 <strong>@ReportFormats.MoneySigned(CashFlow.NetIncome)</strong>
             </RadzenStack>
 
-            <CashFlowSectionBlock Section="@CashFlow.Operating" />
+            @if (ShowSection(CashFlow.Operating))
+            {
+                <CashFlowSectionBlock Section="@CashFlow.Operating" />
+            }
 
-            <CashFlowSectionBlock Section="@CashFlow.Investing" />
+            @if (ShowSection(CashFlow.Investing))
+            {
+                <CashFlowSectionBlock Section="@CashFlow.Investing" />
+            }
 
-            <CashFlowSectionBlock Section="@CashFlow.Financing" />
+            @if (ShowSection(CashFlow.Financing))
+            {
+                <CashFlowSectionBlock Section="@CashFlow.Financing" />
+            }
 
             <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" class="statements-figure">
                 <span>Net change in cash</span>

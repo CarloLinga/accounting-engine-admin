@@ -220,6 +220,142 @@ code {
     font-size: 0.85rem;
 }
 
+/* -----------------------------------------------------------------------------
+   Financial statements: one section block per statement section (e.g. "Current
+   Assets"). A block is a heading with its subtotal followed by a DataGrid of the
+   accounts that make up the section. Defined globally (like the .gj-* rules
+   above) because these styles must reach inside Radzen components: the grid
+   <table>/<thead>/<tr> markup is rendered by RadzenDataGrid, not by our markup.
+   ----------------------------------------------------------------------------- */
+.fs-section-head {
+    border-bottom: 1px solid #d8dee4;
+    padding-bottom: 0.3rem;
+}
+
+.fs-section-head h3 {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #24292f;
+}
+
+/* Compact, chromeless statement grid: the heading above already carries the
+   title and subtotal, so the grid only needs light row separators. */
+.fs-section-grid {
+    width: 100%;
+    font-variant-numeric: tabular-nums;
+}
+
+.fs-section-grid .rz-grid-table {
+    border: none;
+}
+
+/* Radzen pins every grid header to the top of its scroll container
+   (.rz-grid-table thead { position: sticky; top: 0; z-index: 2 }). These section
+   grids stack several to a page and have no inner scrollbar, so sticking would
+   make each section's header float over the page content while scrolling. */
+.fs-section-grid .rz-grid-table thead {
+    position: static;
+}
+
+.fs-section-grid .rz-grid-table thead th {
+    background: transparent;
+    color: #57606a;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    border-bottom: 1px solid #d8dee4;
+}
+
+.fs-section-grid .rz-grid-table td {
+    padding: 0.15rem 0.25rem;
+    border-bottom: 1px solid #f0f2f4;
+    vertical-align: baseline;
+}
+
+/* Radzen's cell wrapper is nowrap + hidden-overflow, which would clip long
+   account names ("Accumulated Depreciation - Office Equip") to an ellipsis.
+   Statement rows read better wrapped, so the wrapper is reset here. */
+.fs-section-grid .rz-grid-table td .rz-cell-data {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+}
+
+.fs-section-grid .rz-grid-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.fs-section-grid .rz-grid-table tbody tr:hover td {
+    background: #f6f8fa;
+}
+
+/* Account / item cell: account code followed by the account name. */
+.fs-account-cell {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+/* Only rows tied to an account can be opened in the general ledger. */
+.fs-grid-link {
+    cursor: pointer;
+}
+
+.fs-grid-link:hover .stk-name {
+    color: #1a73e8;
+    text-decoration: underline;
+}
+
+/* Row states, applied by SectionBlock/CashFlowSectionBlock. The modifier class
+   sits on the cell element itself (and on the amount span), so the rules must
+   match the element carrying the class as well as its children. */
+.fs-section-grid .is-header {
+    font-weight: 700;
+}
+
+.fs-section-grid .is-contra {
+    opacity: 0.75;
+    font-style: italic;
+}
+
+.fs-section-grid .stk-amount.is-negative,
+.fs-section-grid .is-negative .stk-amount {
+    color: #d13438;
+}
+
+/* Hierarchy indent: a parent account, then its children. */
+.fs-indent-0 { padding-left: 0; }
+.fs-indent-1 { padding-left: 0.9rem; }
+.fs-indent-2 { padding-left: 1.8rem; }
+.fs-indent-3 { padding-left: 2.7rem; }
+
+/* One section block (heading + grid). min-width:0 keeps the grid from
+   overflowing the flex column it lives in. */
+.stk-block {
+    min-width: 0;
+}
+
+/* Shared amount/code/name cells (statement headings and grid cells). */
+.stk-code {
+    display: inline-block;
+    min-width: 3.5rem;
+    opacity: 0.65;
+    font-family: "Cascadia Code", Consolas, monospace;
+    font-size: 0.8rem;
+}
+
+.stk-name {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.stk-amount {
+    white-space: nowrap;
+}
+
 .form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
     color: var(--bs-secondary-color);
     text-align: end;
@@ -228,3 +364,4 @@ code {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
     text-align: start;
 }
+
