@@ -1,0 +1,36 @@
+<RadzenStack Gap="0.75rem" class="sales-journal-detail">
+    @if (!string.IsNullOrEmpty(error))
+    {
+        <div class="dialog-error">@error</div>
+    }
+
+    <RadzenStack Orientation="Orientation.Horizontal" Gap="1.25rem" Wrap="FlexWrap.Wrap">
+        <div><RadzenLabel Text="Invoice number" /><div class="journal-detail-value">@Journal.InvoiceNo</div></div>
+        <div><RadzenLabel Text="Invoice date" /><div class="journal-detail-value">@Journal.InvoiceDate.ToString("dd MMM yyyy")</div></div>
+        <div><RadzenLabel Text="Customer" /><div class="journal-detail-value">@(string.IsNullOrWhiteSpace(Journal.Customer) ? "-" : Journal.Customer)</div></div>
+    </RadzenStack>
+    <RadzenStack Orientation="Orientation.Horizontal" Gap="1.25rem" Wrap="FlexWrap.Wrap">
+        <div><RadzenLabel Text="Customer tax ID" /><div class="journal-detail-value">@(string.IsNullOrWhiteSpace(Journal.TaxIDNo) ? "-" : Journal.TaxIDNo)</div></div>
+        <div><RadzenLabel Text="Created" /><div class="journal-detail-value">@Journal.CreatedAt.ToLocalTime().ToString("g")</div></div>
+        @if (Journal.UpdatedAt is not null)
+        {
+            <div><RadzenLabel Text="Updated" /><div class="journal-detail-value">@Journal.UpdatedAt.Value.ToLocalTime().ToString("g")</div></div>
+        }
+    </RadzenStack>
+
+    <RadzenFieldset Text="Amounts">
+        <RadzenStack Gap="0.5rem">
+            <div class="sales-journal-amount-row"><span>Invoice amount</span><strong>@Journal.InvoiceAmount.ToString("N2")</strong></div>
+            <div class="sales-journal-amount-row"><span>VAT amount</span><strong>@Journal.VatAmount.ToString("N2")</strong></div>
+            <div class="sales-journal-amount-row"><span>VATable sale</span><strong>@Journal.VATableSale.ToString("N2")</strong></div>
+            <div class="sales-journal-amount-row"><span>Zero-rated sale</span><strong>@Journal.ZeroRatedSale.ToString("N2")</strong></div>
+            <div class="sales-journal-amount-row"><span>VAT-exempt sale</span><strong>@Journal.VatExemptSale.ToString("N2")</strong></div>
+        </RadzenStack>
+    </RadzenFieldset>
+
+    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="0.5rem">
+        <RadzenButton Text="Delete" Icon="delete" ButtonStyle="ButtonStyle.Danger" Click="@DeleteAsync" Disabled="@busy" />
+        <RadzenButton Text="Edit" Icon="edit" ButtonStyle="ButtonStyle.Primary" Click="@EditAsync" Disabled="@busy" />
+        <RadzenButton Text="Close" ButtonStyle="ButtonStyle.Light" Click="@Close" Disabled="@busy" />
+    </RadzenStack>
+</RadzenStack>

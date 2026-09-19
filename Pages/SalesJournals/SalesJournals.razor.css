@@ -1,0 +1,34 @@
+.sales-journals-link {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #0071c1;
+    cursor: pointer;
+    font-weight: 600;
+    text-align: left;
+}
+
+.sales-journals-link:hover,
+.sales-journals-link:focus {
+    text-decoration: underline;
+}
+
+.sales-journals-muted {
+    opacity: 0.65;
+}
+
+.sales-journals-money {
+    font-variant-numeric: tabular-nums;
+}
+
+.sales-journals-grid-card {
+    overflow-x: auto;
+}
+
+.sales-journal-amount-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    padding: 0.25rem 0;
+}

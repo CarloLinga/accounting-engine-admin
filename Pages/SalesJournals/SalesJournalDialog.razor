@@ -1,0 +1,54 @@
+<EditForm Model="@Model" OnValidSubmit="@SaveAsync">
+    <DataAnnotationsValidator />
+    <RadzenStack Gap="0.75rem">
+        @if (!string.IsNullOrEmpty(error))
+        {
+            <div class="dialog-error">@error</div>
+        }
+
+        <RadzenStack Orientation="Orientation.Horizontal" Gap="0.75rem" Wrap="FlexWrap.Wrap">
+            <RadzenStack Gap="0.25rem" Style="flex: 1 1 250px;">
+                <RadzenLabel Text="Invoice number" />
+                <RadzenTextBox Name="InvoiceNo" @bind-Value="Model.InvoiceNo" Style="width:100%" />
+                <ValidationMessage For="@(() => Model.InvoiceNo)" />
+            </RadzenStack>
+            <RadzenStack Gap="0.25rem" Style="flex: 1 1 220px;">
+                <RadzenLabel Text="Invoice date" />
+                <RadzenDatePicker TValue="DateTime?" Name="InvoiceDate" @bind-Value="Model.InvoiceDate" DateFormat="yyyy-MM-dd" ShowTime="false" Style="width:100%" />
+                <ValidationMessage For="@(() => Model.InvoiceDate)" />
+            </RadzenStack>
+        </RadzenStack>
+
+        <RadzenStack Orientation="Orientation.Horizontal" Gap="0.75rem" Wrap="FlexWrap.Wrap">
+            <RadzenStack Gap="0.25rem" Style="flex: 1 1 300px;">
+                <RadzenLabel Text="Customer" />
+                <RadzenTextBox Name="Customer" @bind-Value="Model.Customer" Style="width:100%" />
+                <ValidationMessage For="@(() => Model.Customer)" />
+            </RadzenStack>
+            <RadzenStack Gap="0.25rem" Style="flex: 1 1 220px;">
+                <RadzenLabel Text="Customer tax ID" />
+                <RadzenTextBox Name="TaxIDNo" @bind-Value="Model.TaxIDNo" Style="width:100%" />
+                <ValidationMessage For="@(() => Model.TaxIDNo)" />
+            </RadzenStack>
+        </RadzenStack>
+
+        <RadzenFieldset Text="Amounts">
+            <RadzenStack Gap="0.75rem">
+                <RadzenStack Orientation="Orientation.Horizontal" Gap="0.75rem" Wrap="FlexWrap.Wrap">
+                    <RadzenStack Gap="0.25rem" Style="flex: 1 1 220px;"><RadzenLabel Text="Invoice amount" /><RadzenNumeric TValue="decimal" @bind-Value="Model.InvoiceAmount" Format="N2" Style="width:100%" /><ValidationMessage For="@(() => Model.InvoiceAmount)" /></RadzenStack>
+                    <RadzenStack Gap="0.25rem" Style="flex: 1 1 220px;"><RadzenLabel Text="VAT amount" /><RadzenNumeric TValue="decimal" @bind-Value="Model.VatAmount" Format="N2" Style="width:100%" /><ValidationMessage For="@(() => Model.VatAmount)" /></RadzenStack>
+                </RadzenStack>
+                <RadzenStack Orientation="Orientation.Horizontal" Gap="0.75rem" Wrap="FlexWrap.Wrap">
+                    <RadzenStack Gap="0.25rem" Style="flex: 1 1 180px;"><RadzenLabel Text="VATable sale" /><RadzenNumeric TValue="decimal" @bind-Value="Model.VATableSale" Format="N2" Style="width:100%" /></RadzenStack>
+                    <RadzenStack Gap="0.25rem" Style="flex: 1 1 180px;"><RadzenLabel Text="Zero-rated sale" /><RadzenNumeric TValue="decimal" @bind-Value="Model.ZeroRatedSale" Format="N2" Style="width:100%" /></RadzenStack>
+                    <RadzenStack Gap="0.25rem" Style="flex: 1 1 180px;"><RadzenLabel Text="VAT-exempt sale" /><RadzenNumeric TValue="decimal" @bind-Value="Model.VatExemptSale" Format="N2" Style="width:100%" /></RadzenStack>
+                </RadzenStack>
+            </RadzenStack>
+        </RadzenFieldset>
+
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="0.5rem" Style="margin-top: 0.5rem;">
+            <RadzenButton Text="Cancel" ButtonStyle="ButtonStyle.Light" Click="@Cancel" Disabled="@saving" />
+            <RadzenButton Text="@(saving ? "Saving..." : (IsCreate ? "Create" : "Save"))" ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Disabled="@saving" Icon="check" />
+        </RadzenStack>
+    </RadzenStack>
+</EditForm>

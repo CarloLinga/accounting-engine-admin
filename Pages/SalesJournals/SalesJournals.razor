@@ -1,0 +1,76 @@
+@page "/sales-journals"
+
+<PageTitle>Sales Journal</PageTitle>
+
+<RadzenStack Gap="1rem" class="sales-journals-page">
+    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween" Wrap="FlexWrap.Wrap" Gap="0.75rem">
+        <div>
+            <h1 class="page-title">Sales Journal</h1>
+            <p class="page-subtitle">Record and maintain invoice sales transactions.</p>
+        </div>
+        <RadzenButton Text="New Sale" Icon="add" Click="@OpenCreateAsync" ButtonStyle="ButtonStyle.Primary" />
+    </RadzenStack>
+
+    <RadzenCard>
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.End" Gap="0.75rem" Wrap="FlexWrap.Wrap">
+            <RadzenStack Gap="0.25rem" Style="min-width: 220px; flex: 1 1 240px;">
+                <RadzenLabel Text="Search" />
+                <RadzenTextBox Name="salesJournalSearch" Placeholder="Invoice, customer or tax ID..." @bind-Value="searchText" Style="width:100%" />
+            </RadzenStack>
+            <RadzenButton Text="Refresh" Icon="refresh" Click="@LoadAsync" ButtonStyle="ButtonStyle.Light" />
+        </RadzenStack>
+    </RadzenCard>
+
+    @if (!string.IsNullOrEmpty(loadError))
+    {
+        <RadzenCard class="page-error">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.75rem">
+                <RadzenIcon Icon="error" />
+                <div style="flex: 1 1 auto;">@loadError</div>
+                <RadzenButton Text="Retry" Size="ButtonSize.Small" Click="@LoadAsync" ButtonStyle="ButtonStyle.Secondary" />
+            </RadzenStack>
+        </RadzenCard>
+    }
+
+    <RadzenCard class="sales-journals-grid-card">
+        @if (isLoading)
+        {
+            <p><em>Loading sales journal...</em></p>
+        }
+        else if (visibleJournals.Count == 0 && string.IsNullOrEmpty(loadError))
+        {
+            <p>No sales journal entries found.</p>
+        }
+        else
+        {
+            <RadzenDataGrid TItem="SalesJournalResponse" Data="@visibleJournals" AllowPaging="true" PageSize="12" AllowSorting="true" AllowFiltering="true">
+                <Columns>
+                    <RadzenDataGridColumn TItem="SalesJournalResponse" Property="InvoiceNo" Title="Invoice no." Width="150px">
+                        <Template Context="journal">
+                            <button type="button" class="sales-journals-link" @onclick="() => OpenViewAsync(journal)" title="View sale">@journal.InvoiceNo</button>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="SalesJournalResponse" Property="InvoiceDate" Title="Date" Width="125px" FormatString="{0:dd MMM yyyy}" />
+                    <RadzenDataGridColumn TItem="SalesJournalResponse" Property="Customer" Title="Customer">
+                        <Template Context="journal">
+                            <div>@(string.IsNullOrWhiteSpace(journal.Customer) ? "-" : journal.Customer)</div>
+                            @if (!string.IsNullOrWhiteSpace(journal.TaxIDNo))
+                            {
+                                <small class="sales-journals-muted">@journal.TaxIDNo</small>
+                            }
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="SalesJournalResponse" Property="InvoiceAmount" Title="Invoice amount" Width="145px" TextAlign="TextAlign.Right">
+                        <Template Context="journal"><span class="sales-journals-money">@journal.InvoiceAmount.ToString("N2")</span></Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="SalesJournalResponse" Property="VatAmount" Title="VAT" Width="125px" TextAlign="TextAlign.Right">
+                        <Template Context="journal"><span class="sales-journals-money">@journal.VatAmount.ToString("N2")</span></Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="SalesJournalResponse" Title="Sales classification" Width="180px" Sortable="false" Filterable="false">
+                        <Template Context="journal">@SalesClassification(journal)</Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+            </RadzenDataGrid>
+        }
+    </RadzenCard>
+</RadzenStack>

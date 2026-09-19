@@ -5,6 +5,7 @@ using Radzen;
 using AccountingEngineAdmin.Services;
 using AccountingEngineAdmin.Services.Accounts;
 using AccountingEngineAdmin.Services.SourceRules;
+using AccountingEngineAdmin.Services.SalesJournals;
 using AccountingEngineAdmin.Services.JournalEntries;
 using AccountingEngineAdmin.Services.Reports;
 using AccountingEngineAdmin;
@@ -46,6 +47,14 @@ builder.Services.AddHttpClient<SourceRulesApiClient>(http =>
     http.Timeout = TimeSpan.FromSeconds(30);
 });
 builder.Services.AddScoped<ISourceRulesApiClient>(sp => sp.GetRequiredService<SourceRulesApiClient>());
+
+// Sales journal (/api/SalesJournals).
+builder.Services.AddHttpClient<SalesJournalsApiClient>(http =>
+{
+    http.BaseAddress = new Uri(apiBaseUrl);
+    http.Timeout = TimeSpan.FromSeconds(30);
+});
+builder.Services.AddScoped<ISalesJournalsApiClient>(sp => sp.GetRequiredService<SalesJournalsApiClient>());
 
 // Journal entries (/api/Journals).
 builder.Services.AddHttpClient<JournalEntriesApiClient>(http =>
